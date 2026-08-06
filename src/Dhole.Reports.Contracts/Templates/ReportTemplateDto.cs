@@ -2,10 +2,13 @@ namespace Dhole.Reports.Contracts.Templates;
 
 public sealed record ReportTemplateDto(
     Guid Id,
+    string Code,
     string Name,
     string? Description,
     string HtmlContent,
     string DesignerJson,
+    string DataSchemaJson,
+    string SampleDataJson,
     string PageSize,
     string Orientation,
     bool HasPreviewPdf,
@@ -16,6 +19,7 @@ public sealed record ReportTemplateDto(
 
 public sealed record ReportTemplateListDto(
     Guid Id,
+    string Code,
     string Name,
     string? Description,
     string PageSize,

@@ -12,9 +12,13 @@ public static class ReportsErrors
         "Reports.Template.NameAlreadyExists",
         "Ya existe una plantilla con ese nombre.");
 
+    public static readonly Error TemplateCodeAlreadyExists = new(
+        "Reports.Template.CodeAlreadyExists",
+        "Ya existe una plantilla con ese código.");
+
     public static readonly Error InvalidTemplate = new(
         "Reports.Template.Invalid",
-        "La plantilla HTML o el JSON del diseñador no son válidos.");
+        "La plantilla HTML, el JSON del diseñador, el esquema o los datos de muestra no son válidos.");
 
     public static readonly Error InvalidReportData = new(
         "Reports.Generation.InvalidData",

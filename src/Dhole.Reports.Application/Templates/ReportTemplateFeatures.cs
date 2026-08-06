@@ -27,8 +27,8 @@ public sealed class BrowseReportTemplatesQueryHandler(IReportTemplateRepository 
         templates.GetPagedAsync(query.Page, query.Search, query.IsActive, cancellationToken);
 }
 
-public sealed record GetReportTemplateByIdQuery(Guid Id)
-    : IQuery<Result<ReportTemplateDto>>;
+public sealed record GetReportTemplateByIdQuery(Guid Id) : IQuery<Result<ReportTemplateDto>>;
+public sealed record GetReportTemplateByCodeQuery(string Code) : IQuery<Result<ReportTemplateDto>>;
 
 public sealed class GetReportTemplateByIdQueryHandler(IReportTemplateRepository templates)
     : IQueryHandler<GetReportTemplateByIdQuery, Result<ReportTemplateDto>>
@@ -38,18 +38,20 @@ public sealed class GetReportTemplateByIdQueryHandler(IReportTemplateRepository 
         CancellationToken cancellationToken = default)
     {
         var template = await templates.GetByIdAsync(query.Id, cancellationToken);
-        if (template is null || template.IsDeleted)
-            return Result.Failure<ReportTemplateDto>(ReportsErrors.TemplateNotFound);
-
-        return Result.Success(Map(template));
+        return template is null || template.IsDeleted
+            ? Result.Failure<ReportTemplateDto>(ReportsErrors.TemplateNotFound)
+            : Result.Success(Map(template));
     }
 
     internal static ReportTemplateDto Map(ReportTemplate template) => new(
         template.Id,
+        template.Code,
         template.Name,
         template.Description,
         template.HtmlContent,
         template.DesignerJson,
+        template.DataSchemaJson,
+        template.SampleDataJson,
         template.PageSize,
         template.Orientation,
         template.PreviewPdf.Length > 0,
@@ -59,8 +61,21 @@ public sealed class GetReportTemplateByIdQueryHandler(IReportTemplateRepository 
         template.UpdatedAtUtc);
 }
 
-public sealed record GetReportTemplatePreviewQuery(Guid Id)
-    : IQuery<Result<GeneratedReportDto>>;
+public sealed class GetReportTemplateByCodeQueryHandler(IReportTemplateRepository templates)
+    : IQueryHandler<GetReportTemplateByCodeQuery, Result<ReportTemplateDto>>
+{
+    public async Task<Result<ReportTemplateDto>> HandleAsync(
+        GetReportTemplateByCodeQuery query,
+        CancellationToken cancellationToken = default)
+    {
+        var template = await templates.GetByCodeAsync(query.Code, cancellationToken);
+        return template is null || template.IsDeleted
+            ? Result.Failure<ReportTemplateDto>(ReportsErrors.TemplateNotFound)
+            : Result.Success(GetReportTemplateByIdQueryHandler.Map(template));
+    }
+}
+
+public sealed record GetReportTemplatePreviewQuery(Guid Id) : IQuery<Result<GeneratedReportDto>>;
 
 public sealed class GetReportTemplatePreviewQueryHandler(IReportTemplateRepository templates)
     : IQueryHandler<GetReportTemplatePreviewQuery, Result<GeneratedReportDto>>
@@ -87,11 +102,51 @@ public sealed class GetReportTemplatePreviewQueryHandler(IReportTemplateReposito
     }
 }
 
+
+public sealed record RenderReportTemplatePreviewCommand(
+    string HtmlContent,
+    string SampleDataJson,
+    string PageSize,
+    string Orientation) : ICommand<Result<GeneratedReportDto>>;
+
+public sealed class RenderReportTemplatePreviewCommandHandler(IReportDocumentGenerator generator)
+    : ICommandHandler<RenderReportTemplatePreviewCommand, Result<GeneratedReportDto>>
+{
+    public async Task<Result<GeneratedReportDto>> HandleAsync(
+        RenderReportTemplatePreviewCommand command,
+        CancellationToken cancellationToken = default)
+    {
+        if (!TemplateJsonValidator.IsValid(command.HtmlContent, command.SampleDataJson))
+            return Result.Failure<GeneratedReportDto>(ReportsErrors.InvalidTemplate);
+
+        try
+        {
+            var report = await generator.GenerateAsync(
+                "pdf",
+                command.HtmlContent,
+                command.SampleDataJson,
+                "template-preview",
+                command.PageSize,
+                command.Orientation,
+                null,
+                cancellationToken);
+            return Result.Success(report);
+        }
+        catch
+        {
+            return Result.Failure<GeneratedReportDto>(ReportsErrors.GenerationFailed);
+        }
+    }
+}
+
 public sealed record CreateReportTemplateCommand(
+    string? Code,
     string Name,
     string? Description,
     string HtmlContent,
     string DesignerJson,
+    string DataSchemaJson,
+    string SampleDataJson,
     string PageSize,
     string Orientation,
     Guid? CreatedBy) : ICommand<Result<Guid>>;
@@ -106,20 +161,28 @@ public sealed class CreateReportTemplateCommandHandler(
         CreateReportTemplateCommand command,
         CancellationToken cancellationToken = default)
     {
-        if (!IsValid(command.HtmlContent, command.DesignerJson))
+        if (!TemplateJsonValidator.IsValid(command.HtmlContent, command.DesignerJson, command.DataSchemaJson, command.SampleDataJson))
             return Result.Failure<Guid>(ReportsErrors.InvalidTemplate);
 
         if (await templates.ExistsByNameAsync(command.Name, cancellationToken: cancellationToken))
             return Result.Failure<Guid>(ReportsErrors.TemplateNameAlreadyExists);
 
+        var code = ReportTemplate.NormalizeTemplateCode(command.Code, command.Name);
+        if (await templates.ExistsByCodeAsync(code, cancellationToken: cancellationToken))
+            return Result.Failure<Guid>(ReportsErrors.TemplateCodeAlreadyExists);
+
         byte[] preview;
         try
         {
-            preview = await generator.RenderPdfAsync(
+            preview = (await generator.GenerateAsync(
+                "pdf",
                 command.HtmlContent,
+                command.SampleDataJson,
+                $"{code}-preview",
                 command.PageSize,
                 command.Orientation,
-                cancellationToken);
+                null,
+                cancellationToken)).Content;
         }
         catch
         {
@@ -127,10 +190,13 @@ public sealed class CreateReportTemplateCommandHandler(
         }
 
         var template = ReportTemplate.Create(
+            code,
             command.Name,
             command.Description,
             command.HtmlContent,
             command.DesignerJson,
+            command.DataSchemaJson,
+            command.SampleDataJson,
             command.PageSize,
             command.Orientation,
             preview,
@@ -140,21 +206,17 @@ public sealed class CreateReportTemplateCommandHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
         return Result.Success(template.Id);
     }
-
-    private static bool IsValid(string html, string designerJson)
-    {
-        if (string.IsNullOrWhiteSpace(html) || string.IsNullOrWhiteSpace(designerJson)) return false;
-        try { using var _ = JsonDocument.Parse(designerJson); return true; }
-        catch (JsonException) { return false; }
-    }
 }
 
 public sealed record UpdateReportTemplateCommand(
     Guid Id,
+    string? Code,
     string Name,
     string? Description,
     string HtmlContent,
     string DesignerJson,
+    string DataSchemaJson,
+    string SampleDataJson,
     string PageSize,
     string Orientation,
     Guid? UpdatedBy) : ICommand<Result>;
@@ -173,23 +235,28 @@ public sealed class UpdateReportTemplateCommandHandler(
         if (template is null || template.IsDeleted)
             return Result.Failure(ReportsErrors.TemplateNotFound);
 
-        if (!IsValid(command.HtmlContent, command.DesignerJson))
+        if (!TemplateJsonValidator.IsValid(command.HtmlContent, command.DesignerJson, command.DataSchemaJson, command.SampleDataJson))
             return Result.Failure(ReportsErrors.InvalidTemplate);
 
-        if (await templates.ExistsByNameAsync(
-                command.Name,
-                command.Id,
-                cancellationToken))
+        if (await templates.ExistsByNameAsync(command.Name, command.Id, cancellationToken))
             return Result.Failure(ReportsErrors.TemplateNameAlreadyExists);
+
+        var code = ReportTemplate.NormalizeTemplateCode(command.Code ?? template.Code, command.Name);
+        if (await templates.ExistsByCodeAsync(code, command.Id, cancellationToken))
+            return Result.Failure(ReportsErrors.TemplateCodeAlreadyExists);
 
         byte[] preview;
         try
         {
-            preview = await generator.RenderPdfAsync(
+            preview = (await generator.GenerateAsync(
+                "pdf",
                 command.HtmlContent,
+                command.SampleDataJson,
+                $"{code}-preview",
                 command.PageSize,
                 command.Orientation,
-                cancellationToken);
+                null,
+                cancellationToken)).Content;
         }
         catch
         {
@@ -197,10 +264,13 @@ public sealed class UpdateReportTemplateCommandHandler(
         }
 
         template.Update(
+            code,
             command.Name,
             command.Description,
             command.HtmlContent,
             command.DesignerJson,
+            command.DataSchemaJson,
+            command.SampleDataJson,
             command.PageSize,
             command.Orientation,
             preview,
@@ -209,17 +279,9 @@ public sealed class UpdateReportTemplateCommandHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
         return Result.Success();
     }
-
-    private static bool IsValid(string html, string designerJson)
-    {
-        if (string.IsNullOrWhiteSpace(html) || string.IsNullOrWhiteSpace(designerJson)) return false;
-        try { using var _ = JsonDocument.Parse(designerJson); return true; }
-        catch (JsonException) { return false; }
-    }
 }
 
-public sealed record DeleteReportTemplateCommand(Guid Id, Guid? DeletedBy)
-    : ICommand<Result>;
+public sealed record DeleteReportTemplateCommand(Guid Id, Guid? DeletedBy) : ICommand<Result>;
 
 public sealed class DeleteReportTemplateCommandHandler(
     IReportTemplateRepository templates,
@@ -247,6 +309,13 @@ public sealed record GenerateReportCommand(
     string? FileName,
     string? SheetName) : ICommand<Result<GeneratedReportDto>>;
 
+public sealed record GenerateReportByCodeCommand(
+    string TemplateCode,
+    string Format,
+    string DataJson,
+    string? FileName,
+    string? SheetName) : ICommand<Result<GeneratedReportDto>>;
+
 public sealed class GenerateReportCommandHandler(
     IReportTemplateRepository templates,
     IReportDocumentGenerator generator)
@@ -257,37 +326,77 @@ public sealed class GenerateReportCommandHandler(
         CancellationToken cancellationToken = default)
     {
         var template = await templates.GetByIdAsync(command.TemplateId, cancellationToken);
+        return await ReportGenerationExecutor.GenerateAsync(
+            template, command.Format, command.DataJson, command.FileName, command.SheetName, generator, cancellationToken);
+    }
+}
+
+public sealed class GenerateReportByCodeCommandHandler(
+    IReportTemplateRepository templates,
+    IReportDocumentGenerator generator)
+    : ICommandHandler<GenerateReportByCodeCommand, Result<GeneratedReportDto>>
+{
+    public async Task<Result<GeneratedReportDto>> HandleAsync(
+        GenerateReportByCodeCommand command,
+        CancellationToken cancellationToken = default)
+    {
+        var template = await templates.GetByCodeAsync(command.TemplateCode, cancellationToken);
+        return await ReportGenerationExecutor.GenerateAsync(
+            template, command.Format, command.DataJson, command.FileName, command.SheetName, generator, cancellationToken);
+    }
+}
+
+internal static class ReportGenerationExecutor
+{
+    public static async Task<Result<GeneratedReportDto>> GenerateAsync(
+        ReportTemplate? template,
+        string format,
+        string dataJson,
+        string? fileName,
+        string? sheetName,
+        IReportDocumentGenerator generator,
+        CancellationToken cancellationToken)
+    {
         if (template is null || template.IsDeleted || !template.IsActive)
             return Result.Failure<GeneratedReportDto>(ReportsErrors.TemplateNotFound);
 
-        var format = command.Format.Trim().ToLowerInvariant();
-        if (format is not ("pdf" or "xlsx" or "csv"))
+        var normalizedFormat = format.Trim().ToLowerInvariant();
+        if (normalizedFormat is not ("pdf" or "xlsx" or "csv"))
             return Result.Failure<GeneratedReportDto>(ReportsErrors.UnsupportedFormat);
 
-        try { using var _ = JsonDocument.Parse(command.DataJson); }
-        catch (JsonException) { return Result.Failure<GeneratedReportDto>(ReportsErrors.InvalidReportData); }
+        if (!TemplateJsonValidator.IsJson(dataJson))
+            return Result.Failure<GeneratedReportDto>(ReportsErrors.InvalidReportData);
 
         try
         {
-            var fileName = string.IsNullOrWhiteSpace(command.FileName)
-                ? template.Name
-                : command.FileName.Trim();
-
+            var resolvedFileName = string.IsNullOrWhiteSpace(fileName) ? template.Name : fileName.Trim();
             var report = await generator.GenerateAsync(
-                format,
+                normalizedFormat,
                 template.HtmlContent,
-                command.DataJson,
-                fileName,
+                dataJson,
+                resolvedFileName,
                 template.PageSize,
                 template.Orientation,
-                command.SheetName,
+                sheetName,
                 cancellationToken);
-
             return Result.Success(report);
         }
         catch
         {
             return Result.Failure<GeneratedReportDto>(ReportsErrors.GenerationFailed);
         }
+    }
+}
+
+internal static class TemplateJsonValidator
+{
+    public static bool IsValid(string html, params string[] jsonValues) =>
+        !string.IsNullOrWhiteSpace(html) && jsonValues.All(IsJson);
+
+    public static bool IsJson(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return false;
+        try { using var _ = JsonDocument.Parse(value); return true; }
+        catch (JsonException) { return false; }
     }
 }

@@ -70,6 +70,7 @@ app.MapGet(
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapReportTemplateEndpoints();
+app.MapTabularReportEndpoints();
 
 using (var scope = app.Services.CreateScope())
 {

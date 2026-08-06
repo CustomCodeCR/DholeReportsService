@@ -7,8 +7,17 @@ namespace Dhole.Reports.Application.Abstractions.Repositories;
 
 public interface IReportTemplateRepository : IRepository<ReportTemplate, Guid>
 {
+    Task<ReportTemplate?> GetByCodeAsync(
+        string code,
+        CancellationToken cancellationToken = default);
+
     Task<bool> ExistsByNameAsync(
         string name,
+        Guid? excludeId = null,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> ExistsByCodeAsync(
+        string code,
         Guid? excludeId = null,
         CancellationToken cancellationToken = default);
 

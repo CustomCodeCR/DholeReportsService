@@ -11,6 +11,16 @@ namespace Dhole.Reports.Persistence.Repositories;
 public sealed class ReportTemplateRepository(ServiceDbContext dbContext)
     : EfRepository<ReportTemplate, Guid>(dbContext), IReportTemplateRepository
 {
+    public Task<ReportTemplate?> GetByCodeAsync(
+        string code,
+        CancellationToken cancellationToken = default)
+    {
+        var value = code.Trim().ToLowerInvariant();
+        return dbContext.ReportTemplates.FirstOrDefaultAsync(
+            x => x.Code.ToLower() == value && !x.IsDeleted,
+            cancellationToken);
+    }
+
     public Task<bool> ExistsByNameAsync(
         string name,
         Guid? excludeId = null,
@@ -19,6 +29,19 @@ public sealed class ReportTemplateRepository(ServiceDbContext dbContext)
         var value = name.Trim().ToLowerInvariant();
         return dbContext.ReportTemplates.IgnoreQueryFilters().AnyAsync(
             x => x.Name.ToLower() == value
+                && !x.IsDeleted
+                && (!excludeId.HasValue || x.Id != excludeId.Value),
+            cancellationToken);
+    }
+
+    public Task<bool> ExistsByCodeAsync(
+        string code,
+        Guid? excludeId = null,
+        CancellationToken cancellationToken = default)
+    {
+        var value = code.Trim().ToLowerInvariant();
+        return dbContext.ReportTemplates.IgnoreQueryFilters().AnyAsync(
+            x => x.Code.ToLower() == value
                 && !x.IsDeleted
                 && (!excludeId.HasValue || x.Id != excludeId.Value),
             cancellationToken);
@@ -36,7 +59,8 @@ public sealed class ReportTemplateRepository(ServiceDbContext dbContext)
         {
             var value = search.Trim().ToLowerInvariant();
             query = query.Where(x =>
-                x.Name.ToLower().Contains(value)
+                x.Code.ToLower().Contains(value)
+                || x.Name.ToLower().Contains(value)
                 || (x.Description != null && x.Description.ToLower().Contains(value)));
         }
 
@@ -50,6 +74,7 @@ public sealed class ReportTemplateRepository(ServiceDbContext dbContext)
             .Take(page.PageSize)
             .Select(x => new ReportTemplateListDto(
                 x.Id,
+                x.Code,
                 x.Name,
                 x.Description,
                 x.PageSize,

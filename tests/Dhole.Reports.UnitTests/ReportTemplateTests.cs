@@ -22,7 +22,7 @@ public sealed class ReportTemplateTests
         Assert.AreEqual("Plantilla comercial", template.Description);
         Assert.AreEqual("LETTER", template.PageSize);
         Assert.AreEqual("Landscape", template.Orientation);
-        Assert.AreEqual(3, template.PreviewPdf.Length);
+        Assert.HasCount(3, template.PreviewPdf);
         Assert.IsTrue(template.IsActive);
         Assert.IsFalse(template.IsDeleted);
     }
