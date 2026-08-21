@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 # Runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 
@@ -22,8 +24,10 @@ ENV TZ=America/Costa_Rica \
 # Build image
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
+ARG GITHUB_ACTOR=github-actions
 WORKDIR /src
 
+COPY ["NuGet.Config", "./NuGet.Config"]
 COPY ["src/Dhole.Reports.Api/Dhole.Reports.Api.csproj", "src/Dhole.Reports.Api/"]
 COPY ["src/Dhole.Reports.Application/Dhole.Reports.Application.csproj", "src/Dhole.Reports.Application/"]
 COPY ["src/Dhole.Reports.Contracts/Dhole.Reports.Contracts.csproj", "src/Dhole.Reports.Contracts/"]
@@ -31,7 +35,9 @@ COPY ["src/Dhole.Reports.Domain/Dhole.Reports.Domain.csproj", "src/Dhole.Reports
 COPY ["src/Dhole.Reports.Infrastructure/Dhole.Reports.Infrastructure.csproj", "src/Dhole.Reports.Infrastructure/"]
 COPY ["src/Dhole.Reports.Persistence/Dhole.Reports.Persistence.csproj", "src/Dhole.Reports.Persistence/"]
 
-RUN dotnet restore "src/Dhole.Reports.Api/Dhole.Reports.Api.csproj"
+RUN --mount=type=secret,id=github_token,required=true \
+    export NuGetPackageSourceCredentials_github="Username=${GITHUB_ACTOR};Password=$(cat /run/secrets/github_token);ValidAuthenticationTypes=Basic" && \
+    dotnet restore "src/Dhole.Reports.Api/Dhole.Reports.Api.csproj" --configfile /src/NuGet.Config
 
 COPY . .
 
