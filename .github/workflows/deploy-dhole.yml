@@ -35,21 +35,64 @@ jobs:
           test -r "$COMPOSE_FILE"
           docker compose --env-file /opt/dhole/.env -f "$COMPOSE_FILE" config -q
 
-      - name: Build images
+      - name: Build and validate Reports worker
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           SHA_TAG="${GITHUB_SHA::12}"
-          docker build --pull --build-arg GITHUB_ACTOR="$GITHUB_ACTOR" --secret id=github_token,env=GITHUB_TOKEN -f src/Dhole.Reports.Api/Dockerfile -t dhole/reports-api:latest -t "dhole/reports-api:$SHA_TAG" .
-          docker build --pull --build-arg GITHUB_ACTOR="$GITHUB_ACTOR" --secret id=github_token,env=GITHUB_TOKEN -f src/Dhole.Reports.Workers/Dockerfile -t dhole/reports-workers:latest -t "dhole/reports-workers:$SHA_TAG" .
 
-      - name: Deploy Reports
+          # Force a clean rebuild so an old runtime-based layer cannot be reused.
+          docker build \
+            --pull \
+            --no-cache \
+            --build-arg GITHUB_ACTOR="$GITHUB_ACTOR" \
+            --secret id=github_token,env=GITHUB_TOKEN \
+            -f src/Dhole.Reports.Workers/Dockerfile \
+            -t dhole/reports-workers:latest \
+            -t "dhole/reports-workers:$SHA_TAG" \
+            .
+
+          # Fail the deployment if the image does not contain ASP.NET Core 10.
+          docker run --rm --entrypoint dotnet dhole/reports-workers:latest --list-runtimes | tee /tmp/reports-worker-runtimes.txt
+          grep -Eq '^Microsoft\.AspNetCore\.App 10\.' /tmp/reports-worker-runtimes.txt
+
+      - name: Deploy Reports worker
         shell: bash
         run: |
           set -euo pipefail
-          docker compose --env-file /opt/dhole/.env -f "$COMPOSE_FILE" up -d --no-deps --force-recreate --pull never reports-api reports-workers
+          docker compose --env-file /opt/dhole/.env -f "$COMPOSE_FILE" up -d --no-deps --force-recreate --pull never reports-workers
+          docker compose --env-file /opt/dhole/.env -f "$COMPOSE_FILE" ps reports-workers
+
+          CONTAINER_ID="$(docker compose --env-file /opt/dhole/.env -f "$COMPOSE_FILE" ps -q reports-workers)"
+          test -n "$CONTAINER_ID"
+
+          # Verify the recreated container is actually using an image with ASP.NET Core 10.
+          docker exec "$CONTAINER_ID" dotnet --list-runtimes | tee /tmp/reports-worker-container-runtimes.txt
+          grep -Eq '^Microsoft\.AspNetCore\.App 10\.' /tmp/reports-worker-container-runtimes.txt
+
+      - name: Build Reports API
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          SHA_TAG="${GITHUB_SHA::12}"
+          docker build \
+            --pull \
+            --build-arg GITHUB_ACTOR="$GITHUB_ACTOR" \
+            --secret id=github_token,env=GITHUB_TOKEN \
+            -f src/Dhole.Reports.Api/Dockerfile \
+            -t dhole/reports-api:latest \
+            -t "dhole/reports-api:$SHA_TAG" \
+            .
+
+      - name: Deploy Reports API
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker compose --env-file /opt/dhole/.env -f "$COMPOSE_FILE" up -d --no-deps --force-recreate --pull never reports-api
           docker compose --env-file /opt/dhole/.env -f "$COMPOSE_FILE" ps reports-api reports-workers
 
       - name: Cleanup old images
