@@ -10,11 +10,9 @@ namespace Dhole.Reports.Persistence.Migrations;
 [Migration("20260826213000_SeedPricingFclClientQuoteTemplate")]
 public sealed class SeedPricingFclClientQuoteTemplate : Migration
 {
-    private static readonly Guid TemplateId = Guid.Parse("61c6c48a-5c12-4a55-9d5e-f3d394710001");
-
     protected override void Up(MigrationBuilder migrationBuilder)
     {
-        migrationBuilder.Sql($$"""
+        migrationBuilder.Sql("""
             INSERT INTO reports.report_templates (
                 id,
                 code,
@@ -37,7 +35,7 @@ public sealed class SeedPricingFclClientQuoteTemplate : Migration
                 deleted_at_utc,
                 deleted_by)
             SELECT
-                '{{TemplateId}}'::uuid,
+                '61c6c48a-5c12-4a55-9d5e-f3d394710001'::uuid,
                 'pricing-fcl-client-quote',
                 'Cotización Pricing - Cliente',
                 'Plantilla base para generar cotizaciones de Pricing desde Dhole.',
@@ -166,9 +164,9 @@ public sealed class SeedPricingFclClientQuoteTemplate : Migration
 
     protected override void Down(MigrationBuilder migrationBuilder)
     {
-        migrationBuilder.Sql($$"""
+        migrationBuilder.Sql("""
             DELETE FROM reports.report_templates
-            WHERE id = '{{TemplateId}}'::uuid
+            WHERE id = '61c6c48a-5c12-4a55-9d5e-f3d394710001'::uuid
               AND code = 'pricing-fcl-client-quote';
             """);
     }
