@@ -1,0 +1,36 @@
+# One-shot workflow; removes itself after patching the migration.
+name: Fix pricing template migration raw string
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/fix-pricing-template-migration-indent.yml'
+      - '.github/scripts/fix-pricing-template-migration-indent.py'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fix migration
+        run: python3 .github/scripts/fix-pricing-template-migration-indent.py
+
+      - name: Commit fix and cleanup helper
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/scripts/fix-pricing-template-migration-indent.py
+          rm -f .github/workflows/fix-pricing-template-migration-indent.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'fix(reports): compile requested pricing template migration'
+          git push origin HEAD:master
