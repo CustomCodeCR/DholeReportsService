@@ -11,7 +11,16 @@ internal static partial class TemplateDataBinder
         using var document = JsonDocument.Parse(dataJson);
         var root = document.RootElement;
 
-        var withLoops = EachRegex().Replace(html, match =>
+        var withConditionals = IfRegex().Replace(html, match =>
+        {
+            var path = match.Groups[1].Value.Trim();
+            var body = match.Groups[2].Value;
+            return TryResolve(root, path, out var value) && IsTruthy(value)
+                ? body
+                : string.Empty;
+        });
+
+        var withLoops = EachRegex().Replace(withConditionals, match =>
         {
             var path = match.Groups[1].Value.Trim();
             var body = match.Groups[2].Value;
@@ -23,6 +32,16 @@ internal static partial class TemplateDataBinder
 
         return ReplaceScalars(withLoops, root, root);
     }
+
+    private static bool IsTruthy(JsonElement value) => value.ValueKind switch
+    {
+        JsonValueKind.String => !string.IsNullOrWhiteSpace(value.GetString()),
+        JsonValueKind.Number => value.TryGetDecimal(out var number) && number != 0m,
+        JsonValueKind.True => true,
+        JsonValueKind.Array => value.GetArrayLength() > 0,
+        JsonValueKind.Object => true,
+        _ => false
+    };
 
     private static string ReplaceScalars(string input, JsonElement context, JsonElement root)
     {
@@ -82,6 +101,9 @@ internal static partial class TemplateDataBinder
         JsonValueKind.Null or JsonValueKind.Undefined => string.Empty,
         _ => value.GetRawText()
     };
+
+    [GeneratedRegex(@"\{\{#if\s+([^}]+)\}\}([\s\S]*?)\{\{/if\}\}", RegexOptions.IgnoreCase)]
+    private static partial Regex IfRegex();
 
     [GeneratedRegex(@"\{\{#each\s+([^}]+)\}\}([\s\S]*?)\{\{/each\}\}", RegexOptions.IgnoreCase)]
     private static partial Regex EachRegex();
