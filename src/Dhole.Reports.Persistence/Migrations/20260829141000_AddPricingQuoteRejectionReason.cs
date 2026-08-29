@@ -33,7 +33,7 @@ public sealed class AddPricingQuoteRejectionReason : Migration
                 ),
                 updated_at_utc = NOW()
             WHERE code = 'pricing-fcl-client-quote'
-              AND html_content NOT LIKE '%{{#if rate.rejectionReason}}%';
+              AND html_content NOT LIKE '%rate.rejectionReason%';
             """);
     }
 
