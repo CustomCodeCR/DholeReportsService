@@ -1,7 +1,6 @@
 using System.Net;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using QRCoder;
 
 namespace Dhole.Reports.Infrastructure.Generation;
 
@@ -46,45 +45,22 @@ internal static partial class TemplateDataBinder
 
     private static string ReplaceScalars(string input, JsonElement context, JsonElement root)
     {
-        var withQrCodes = QrRegex().Replace(input, match =>
+        return ScalarRegex().Replace(input, match =>
         {
             var path = match.Groups[1].Value.Trim();
-            if (!TryResolveValue(context, root, path, out var value)) return string.Empty;
+            JsonElement value;
 
-            var qrValue = ToDisplayString(value).Trim();
-            return string.IsNullOrWhiteSpace(qrValue)
-                ? string.Empty
-                : GenerateQrDataUri(qrValue);
-        });
-
-        return ScalarRegex().Replace(withQrCodes, match =>
-        {
-            var path = match.Groups[1].Value.Trim();
-            if (!TryResolveValue(context, root, path, out var value)) return string.Empty;
+            if (path.StartsWith("root.", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!TryResolve(root, path[5..], out value)) return string.Empty;
+            }
+            else if (!TryResolve(context, path, out value) && !TryResolve(root, path, out value))
+            {
+                return string.Empty;
+            }
 
             return WebUtility.HtmlEncode(ToDisplayString(value));
         });
-    }
-
-    private static bool TryResolveValue(
-        JsonElement context,
-        JsonElement root,
-        string path,
-        out JsonElement value)
-    {
-        if (path.StartsWith("root.", StringComparison.OrdinalIgnoreCase))
-            return TryResolve(root, path[5..], out value);
-
-        return TryResolve(context, path, out value) || TryResolve(root, path, out value);
-    }
-
-    private static string GenerateQrDataUri(string value)
-    {
-        using var generator = new QRCodeGenerator();
-        using var data = generator.CreateQrCode(value, QRCodeGenerator.ECCLevel.Q);
-        using var qrCode = new PngByteQRCode(data);
-        var png = qrCode.GetGraphic(12);
-        return $"data:image/png;base64,{Convert.ToBase64String(png)}";
     }
 
     private static bool TryResolve(JsonElement element, string path, out JsonElement value)
@@ -131,9 +107,6 @@ internal static partial class TemplateDataBinder
 
     [GeneratedRegex(@"\{\{#each\s+([^}]+)\}\}([\s\S]*?)\{\{/each\}\}", RegexOptions.IgnoreCase)]
     private static partial Regex EachRegex();
-
-    [GeneratedRegex(@"\{\{\s*qr\s+([^}]+)\s*\}\}", RegexOptions.IgnoreCase)]
-    private static partial Regex QrRegex();
 
     [GeneratedRegex(@"\{\{\s*([^#/{][^}]*)\s*\}\}")]
     private static partial Regex ScalarRegex();
