@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    @page { size: A4; margin: 12mm 13mm 14mm; }
+    * { box-sizing: border-box; }
+    html, body { margin:0; padding:0; }
+    body { font-family: Arial, Helvetica, sans-serif; color:#171717; background:#fff; font-size:10.5px; line-height:1.35; }
+    .page { width:100%; }
+    .page-two { page-break-before: always; break-before: page; }
+    .header-table { width:100%; border-collapse:collapse; margin-bottom:10px; }
+    .header-table td { border:0; padding:0; vertical-align:top; }
+    .brand-cell { width:52%; }
+    .quote-cell { width:48%; text-align:right; }
+    .logo { width:245px; max-height:92px; object-fit:contain; object-position:left center; display:block; margin-bottom:4px; }
+    .website { color:#555; font-size:9px; margin-top:3px; }
+    .document-type { font-size:9px; letter-spacing:1.4px; font-weight:800; text-transform:uppercase; color:#777; margin-top:4px; }
+    .quote-number { font-size:21px; font-weight:900; color:#ad1220; margin:3px 0 5px; }
+    .quote-meta { color:#444; font-size:9.5px; line-height:1.55; }
+    .main-title { font-size:24px; font-weight:900; margin:12px 0 10px; letter-spacing:-0.4px; text-transform:uppercase; color:#111; }
+    .accent-strip { width:100%; border-collapse:collapse; margin-bottom:13px; }
+    .accent-strip td { background:#ad1220; color:#fff; padding:7px 10px; border:0; font-size:9.5px; }
+    .accent-strip td:last-child { text-align:right; }
+    .summary-grid { width:100%; border-collapse:collapse; margin:0 0 13px; }
+    .summary-grid td { width:50%; vertical-align:top; border-top:1px solid #ddd; padding:8px 8px 6px 0; }
+    .summary-grid td + td { padding-left:18px; }
+    .kv { width:100%; border-collapse:collapse; }
+    .kv td { border:0; padding:2px 0; vertical-align:top; }
+    .kv .k { width:38%; color:#707070; font-size:8.5px; text-transform:uppercase; letter-spacing:.3px; }
+    .kv .v { font-weight:700; color:#222; }
+    .transit { border-top:3px solid #ad1220; border-bottom:1px solid #ddd; padding:9px 0; margin-bottom:12px; display:flex; align-items:center; gap:12px; }
+    .transit-badge { width:34px; height:34px; border:2px solid #ad1220; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; color:#ad1220; font-weight:900; font-size:13px; }
+    .transit-label { color:#777; font-size:8.5px; text-transform:uppercase; letter-spacing:.5px; }
+    .transit-value { font-size:12px; font-weight:800; margin-top:2px; }
+    .cargo-strip { width:100%; border-collapse:separate; border-spacing:0; margin:0 0 12px; border-top:3px solid #ad1220; }
+    .cargo-strip td { padding:8px 10px; background:#f5f5f5; border-right:6px solid #fff; }
+    .cargo-strip td:last-child { border-right:0; }
+    .cargo-label { display:block; color:#777; text-transform:uppercase; font-size:8px; letter-spacing:.4px; margin-bottom:2px; }
+    .cargo-value { font-weight:800; font-size:10px; }
+    .section-title { font-size:11px; font-weight:900; color:#ad1220; text-transform:uppercase; letter-spacing:.7px; margin:13px 0 7px; padding-bottom:5px; border-bottom:2px solid #ad1220; }
+    .equipment-table, .items-table { width:100%; border-collapse:collapse; table-layout:fixed; }
+    .equipment-table th, .items-table th { background:#1c1c1c; color:#fff; font-size:8.5px; text-transform:uppercase; letter-spacing:.35px; padding:7px 7px; text-align:left; }
+    .equipment-table td, .items-table td { padding:7px 7px; border-bottom:1px solid #ddd; vertical-align:top; }
+    .equipment-table tbody tr:nth-child(even), .items-table tbody tr:nth-child(even) { background:#f3f3f3; }
+    .items-table .concept { width:41%; font-weight:700; }
+    .items-table .currency { width:13%; }
+    .items-table .quantity { width:13%; text-align:right; }
+    .items-table .money { width:16.5%; text-align:right; white-space:nowrap; }
+    .items-table .notes { display:block; color:#777; font-size:8.2px; font-weight:400; margin-top:2px; }
+    .totals { width:100%; margin-top:12px; text-align:right; }
+    .totals-title { color:#777; font-size:8.5px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; margin-bottom:5px; }
+    .total-card { display:inline-block; min-width:185px; margin:0 0 5px 6px; padding:9px 11px; border:1px solid #d5d5d5; border-left:5px solid #ad1220; background:#fafafa; text-align:left; vertical-align:top; }
+    .total-card span { display:block; color:#777; font-size:8px; text-transform:uppercase; letter-spacing:.4px; margin-bottom:2px; }
+    .total-card strong { font-size:15px; color:#111; }
+    .multi-note { margin-top:5px; font-size:8.5px; color:#666; text-align:right; }
+    .terms-card { border:1px solid #e1e1e1; border-left:5px solid #ad1220; border-radius:5px; padding:9px 11px; margin:8px 0; background:#fbfbfb; page-break-inside:avoid; }
+    .terms-card.neutral { border-left-color:#222; }
+    .terms-card h3 { margin:0 0 4px; color:#ad1220; font-size:9.5px; text-transform:uppercase; }
+    .terms-card.neutral h3 { color:#222; }
+    .terms-card p { margin:0; white-space:pre-line; }
+    .qr-card { width:100%; border-collapse:collapse; border:1px solid #ddd; margin-top:8px; page-break-inside:avoid; }
+    .qr-card td { padding:12px; vertical-align:middle; }
+    .qr-image-cell { width:145px; text-align:center; background:#fff; }
+    .qr-image { width:122px; height:122px; display:block; margin:0 auto; }
+    .qr-heading { font-size:12px; font-weight:900; margin-bottom:5px; }
+    .qr-copy { color:#555; font-size:9.5px; line-height:1.5; }
+    .qr-url { margin-top:6px; font-size:8px; color:#777; word-break:break-all; }
+    .validity { margin:12px 0; padding:8px 10px; border:1px solid #ddd; background:#f7f7f7; text-align:center; border-radius:5px; font-size:9.5px; }
+    .notes-box { border-top:2px solid #222; padding-top:8px; margin-top:13px; color:#444; font-size:8.7px; line-height:1.5; }
+    .notes-box p { margin:2px 0; }
+    .footer { margin-top:14px; padding-top:8px; border-top:1px solid #ddd; text-align:center; color:#666; font-size:8.5px; }
+    .footer strong { color:#333; }
+  </style>
+</head>
+<body>
+  <section class="page page-one">
+    <table class="header-table">
+      <tr>
+        <td class="brand-cell">
+          <img class="logo" alt="Grupo Castro Fallas" src="__CASTRO_FALLAS_LOGO_DATA_URI__" />
+          <div class="website">{{company.website}}</div>
+        </td>
+        <td class="quote-cell">
+          <div class="document-type">Cotización</div>
+          <div class="quote-number">{{rate.quoteNumber}}</div>
+          <div class="quote-meta">
+            <div><strong>Cliente:</strong> {{rate.clientName}}</div>
+            <div><strong>Fecha:</strong> {{generated.date}}</div>
+            {{#if rate.idtraNumber}}<div><strong>IDTRA:</strong> {{rate.idtraNumber}}</div>{{/if}}
+          </div>
+        </td>
+      </tr>
+    </table>
+
+    <div class="main-title">Cotización de transporte internacional</div>
+
+    <table class="accent-strip">
+      <tr>
+        <td><strong>Nº DE COTIZACIÓN:</strong> {{rate.quoteNumber}}</td>
+        <td><strong>Vigencia:</strong> {{rate.validFrom}} - {{rate.validTo}}</td>
+      </tr>
+    </table>
+
+    <div class="transit">
+      <div class="transit-badge">TT</div>
+      <div>
+        <div class="transit-label">Tiempo de tránsito</div>
+        <div class="transit-value">{{rate.transitTime}}</div>
+      </div>
+    </div>
+
+    <table class="summary-grid">
+      <tr>
+        <td>
+          <table class="kv">
+            <tr><td class="k">Desde / POL</td><td class="v">{{rate.pol}}</td></tr>
+            <tr><td class="k">POE</td><td class="v">{{rate.poe}}</td></tr>
+            {{#if rate.pod}}<tr><td class="k">Hasta / POD</td><td class="v">{{rate.pod}}</td></tr>{{/if}}
+            {{#if rate.incoterm}}<tr><td class="k">Incoterm</td><td class="v">{{rate.incoterm}}</td></tr>{{/if}}
+            <tr><td class="k">Modalidad</td><td class="v">{{rate.shipmentMode}}</td></tr>
+          </table>
+        </td>
+        <td>
+          <table class="kv">
+            <tr><td class="k">Cliente</td><td class="v">{{rate.clientName}}</td></tr>
+            {{#if rate.showAgent}}<tr><td class="k">Agente / coloader</td><td class="v">{{rate.agent}}</td></tr>{{/if}}
+            {{#if rate.showCarrier}}<tr><td class="k">Naviera / proveedor</td><td class="v">{{rate.carrier}}</td></tr>{{/if}}
+            <tr><td class="k">Equipo / embarque</td><td class="v">{{rate.containerSummary}}</td></tr>
+            <tr><td class="k">Ruta</td><td class="v">{{rate.route}}</td></tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+
+    <table class="cargo-strip">
+      <tr>
+        <td><span class="cargo-label">Bultos</span><span class="cargo-value">{{rate.totalPackages}}</span></td>
+        <td><span class="cargo-label">Tarimas</span><span class="cargo-value">{{rate.totalPallets}}</span></td>
+        <td><span class="cargo-label">Peso</span><span class="cargo-value">{{rate.totalWeightKg}} KG</span></td>
+        <td><span class="cargo-label">Volumen</span><span class="cargo-value">{{rate.totalVolumeCbm}} M3</span></td>
+      </tr>
+    </table>
+
+    <div class="section-title">Equipos cotizados</div>
+    <table class="equipment-table">
+      <thead><tr><th>Tipo de equipo / embarque</th><th style="width:110px;text-align:right;">Cantidad</th></tr></thead>
+      <tbody>
+        {{#each containers}}
+        <tr><td><strong>{{containerTypeName}}</strong></td><td style="text-align:right;">{{quantity}}</td></tr>
+        {{/each}}
+      </tbody>
+    </table>
+
+    <div class="section-title">Detalle de la cotización</div>
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th class="concept">Concepto</th>
+          <th class="currency">Moneda</th>
+          <th class="quantity">Cantidad</th>
+          <th class="money">Precio unitario</th>
+          <th class="money">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each items}}
+        <tr>
+          <td class="concept">{{description}}{{#if notes}}<span class="notes">{{notes}}</span>{{/if}}</td>
+          <td class="currency">{{currency}}</td>
+          <td class="quantity">{{quantity}}</td>
+          <td class="money">{{unitSaleAmount}}</td>
+          <td class="money"><strong>{{lineTotalAmount}}</strong></td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+
+    <div class="totals">
+      {{#if rate.hasSingleCurrency}}<div class="totals-title">Total de la cotización</div>{{/if}}
+      {{#if rate.hasMultipleCurrencies}}<div class="totals-title">Totales por moneda</div>{{/if}}
+      {{#each currencyTotals}}
+      <div class="total-card"><span>{{currency}}</span><strong>{{total}}</strong></div>
+      {{/each}}
+      {{#if rate.hasMultipleCurrencies}}<div class="multi-note">Los importes de monedas distintas se presentan por separado y no se suman entre sí.</div>{{/if}}
+    </div>
+  </section>
+
+  <section class="page page-two">
+    <div class="section-title">Condiciones comerciales</div>
+    {{#if rate.includes}}<div class="terms-card"><h3>Incluye</h3><p>{{rate.includes}}</p></div>{{/if}}
+    {{#if rate.subjectTo}}<div class="terms-card neutral"><h3>Sujeto a</h3><p>{{rate.subjectTo}}</p></div>{{/if}}
+    {{#if rate.excludes}}<div class="terms-card"><h3>No incluye</h3><p>{{rate.excludes}}</p></div>{{/if}}
+
+    <div class="section-title">Oficina en origen</div>
+    <table class="qr-card">
+      <tr>
+        <td class="qr-image-cell"><img class="qr-image" src="{{originOffice.qrDataUri}}" alt="QR oficina en origen" /></td>
+        <td>
+          <div class="qr-heading">{{originOffice.message}}</div>
+          <div class="qr-copy">Escanee el código QR para consultar la información pública de la oficina de Castro Fallas en origen correspondiente a <strong>{{originOffice.polName}}</strong>.</div>
+          <div class="qr-url">{{originOffice.publicPageUrl}}</div>
+        </td>
+      </tr>
+    </table>
+
+    <div class="validity"><strong>Vigencia de la oferta:</strong> {{rate.validFrom}} al {{rate.validTo}}</div>
+
+    <div class="section-title">Condiciones / notas importantes</div>
+    <div class="notes-box">
+      <p>Tarifas sujetas a cambio sin previo aviso. Cotización basada en los datos proporcionados.</p>
+      <p>Tarifa aplicable para carga general no peligrosa, salvo indicación expresa en esta cotización.</p>
+      <p>Los tiempos de tránsito son aproximados y están sujetos a conexiones, condiciones externas, revisiones y disponibilidad.</p>
+      <p>Espacios sujetos a disponibilidad al momento de reservar.</p>
+      <p>No incluye demoras, almacenajes, impuestos, permisos ni servicios no indicados expresamente.</p>
+      <p>La carga debe estar correctamente embalada y rotulada para su transporte internacional.</p>
+      <p>Si la carga contiene producto IMO, debe informarse previamente y adjuntar las fichas MSDS correspondientes.</p>
+      <p>Seguro de carga disponible según instrucciones del cliente. Grupo Castro Fallas no asume responsabilidad por carga no asegurada.</p>
+    </div>
+
+    <div class="footer">
+      <strong>Grupo Castro Fallas - Logística Integral</strong><br/>
+      {{company.website}} · pricing@grupocastrofallas.com · WhatsApp: +506 7078-6941<br/>
+      Cotización {{rate.quoteNumber}} · Generada el {{generated.date}} a las {{generated.time}}.
+    </div>
+  </section>
+</body>
+</html>
