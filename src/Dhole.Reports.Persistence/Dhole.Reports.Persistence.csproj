@@ -20,4 +20,9 @@
     <ProjectReference Include="..\Dhole.Reports.Contracts\Dhole.Reports.Contracts.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\PricingClientQuoteCastroFallas.html" />
+    <EmbeddedResource Include="Templates\CastroFallasLogo.png" />
+  </ItemGroup>
+
 </Project>
