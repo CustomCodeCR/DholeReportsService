@@ -1,13 +1,14 @@
 using CustomCodeFramework.Postgres.EntityFramework.DbContexts;
+using Dhole.Reports.Domain.Analytics.Entities;
 using Dhole.Reports.Domain.Templates.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dhole.Reports.Persistence.DbContexts;
 
-public sealed class ServiceDbContext(DbContextOptions<ServiceDbContext> options)
-    : AppDbContextBase(options)
+public sealed class ServiceDbContext(DbContextOptions<ServiceDbContext> options) : AppDbContextBase(options)
 {
     public DbSet<ReportTemplate> ReportTemplates => Set<ReportTemplate>();
+    public DbSet<ContentAnalyticsEvent> ContentAnalyticsEvents => Set<ContentAnalyticsEvent>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
