@@ -106,10 +106,10 @@ internal static partial class TemplateDataBinder
     private static string FormatNumber(JsonElement value)
     {
         if (value.TryGetDecimal(out var decimalValue))
-            return decimalValue.ToString("0.##", CultureInfo.InvariantCulture);
+            return decimalValue.ToString("N2", CultureInfo.InvariantCulture);
 
         if (value.TryGetDouble(out var doubleValue))
-            return doubleValue.ToString("0.##", CultureInfo.InvariantCulture);
+            return doubleValue.ToString("N2", CultureInfo.InvariantCulture);
 
         return value.GetRawText();
     }
