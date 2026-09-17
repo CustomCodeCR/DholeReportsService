@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -95,12 +96,23 @@ internal static partial class TemplateDataBinder
     private static string ToDisplayString(JsonElement value) => value.ValueKind switch
     {
         JsonValueKind.String => value.GetString() ?? string.Empty,
-        JsonValueKind.Number => value.GetRawText(),
+        JsonValueKind.Number => FormatNumber(value),
         JsonValueKind.True => "Sí",
         JsonValueKind.False => "No",
         JsonValueKind.Null or JsonValueKind.Undefined => string.Empty,
         _ => value.GetRawText()
     };
+
+    private static string FormatNumber(JsonElement value)
+    {
+        if (value.TryGetDecimal(out var decimalValue))
+            return decimalValue.ToString("0.##", CultureInfo.InvariantCulture);
+
+        if (value.TryGetDouble(out var doubleValue))
+            return doubleValue.ToString("0.##", CultureInfo.InvariantCulture);
+
+        return value.GetRawText();
+    }
 
     [GeneratedRegex(@"\{\{#if\s+([^}]+)\}\}([\s\S]*?)\{\{/if\}\}", RegexOptions.IgnoreCase)]
     private static partial Regex IfRegex();
