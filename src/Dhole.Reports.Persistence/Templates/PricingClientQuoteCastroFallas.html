@@ -141,6 +141,11 @@
       </tr>
     </table>
 
+    {{#if rate.cargoDetails}}
+    <div class="section-title">Detalles de la carga</div>
+    <div class="terms-card neutral"><p>{{rate.cargoDetails}}</p></div>
+    {{/if}}
+
     <div class="section-title">Equipos cotizados</div>
     <table class="equipment-table">
       <thead><tr><th>Tipo de equipo / embarque</th><th style="width:110px;text-align:right;">Cantidad</th></tr></thead>
