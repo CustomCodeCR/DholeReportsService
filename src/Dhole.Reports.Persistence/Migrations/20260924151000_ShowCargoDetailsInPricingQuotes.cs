@@ -17,17 +17,8 @@ public sealed class ShowCargoDetailsInPricingQuotes : Migration
             UPDATE reports.report_templates
             SET html_content = REPLACE(
                     html_content,
-                    $cargo_anchor$    </table>
-
-    <div class="section-title">Equipos cotizados</div>$cargo_anchor$,
-                    $cargo_block$    </table>
-
-    {{#if rate.cargoDetails}}
-    <div class="section-title">Detalles de la carga</div>
-    <div class="terms-card neutral"><p>{{rate.cargoDetails}}</p></div>
-    {{/if}}
-
-    <div class="section-title">Equipos cotizados</div>$cargo_block$
+                    '<div class="section-title">Equipos cotizados</div>',
+                    '{{#if rate.cargoDetails}}<div class="section-title">Detalles de la carga</div><div class="terms-card neutral"><p>{{rate.cargoDetails}}</p></div>{{/if}}<div class="section-title">Equipos cotizados</div>'
                 ),
                 updated_at_utc = NOW()
             WHERE code IN ('pricing-fcl-client-quote', 'pricing-lcl-client-quote')
@@ -44,17 +35,8 @@ public sealed class ShowCargoDetailsInPricingQuotes : Migration
             UPDATE reports.report_templates
             SET html_content = REPLACE(
                     html_content,
-                    $cargo_block$    </table>
-
-    {{#if rate.cargoDetails}}
-    <div class="section-title">Detalles de la carga</div>
-    <div class="terms-card neutral"><p>{{rate.cargoDetails}}</p></div>
-    {{/if}}
-
-    <div class="section-title">Equipos cotizados</div>$cargo_block$,
-                    $cargo_anchor$    </table>
-
-    <div class="section-title">Equipos cotizados</div>$cargo_anchor$
+                    '{{#if rate.cargoDetails}}<div class="section-title">Detalles de la carga</div><div class="terms-card neutral"><p>{{rate.cargoDetails}}</p></div>{{/if}}<div class="section-title">Equipos cotizados</div>',
+                    '<div class="section-title">Equipos cotizados</div>'
                 ),
                 updated_at_utc = NOW()
             WHERE code IN ('pricing-fcl-client-quote', 'pricing-lcl-client-quote')
