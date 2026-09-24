@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using Dhole.Reports.Application.Abstractions.Generation;
 using Dhole.Reports.Contracts.Generation;
@@ -15,7 +17,30 @@ public static class TabularReportEndpoints
 
         group.MapPost("/generate", GenerateAsync);
 
+        app.MapPost(
+                "/api/internal/reports/tabular/generate",
+                GenerateInternalAsync
+            )
+            .WithTags("Internal Reports")
+            .AllowAnonymous();
+
         return app;
+    }
+
+    private static async Task<IResult> GenerateInternalAsync(
+        GenerateTabularReportRequest request,
+        IReportDocumentGenerator generator,
+        IConfiguration configuration,
+        HttpContext httpContext,
+        CancellationToken cancellationToken
+    )
+    {
+        if (!HasValidServiceKey(httpContext, configuration))
+        {
+            return Results.Unauthorized();
+        }
+
+        return await GenerateAsync(request, generator, httpContext, cancellationToken);
     }
 
     private static async Task<IResult> GenerateAsync(
@@ -86,6 +111,27 @@ public static class TabularReportEndpoints
                 $"No fue posible generar el archivo: {exception.Message}"
             );
         }
+    }
+
+    private static bool HasValidServiceKey(
+        HttpContext context,
+        IConfiguration configuration
+    )
+    {
+        var expected = configuration["Reports:InternalServiceKey"];
+        var headerName =
+            configuration["Reports:InternalServiceKeyHeader"] ?? "X-Dhole-Service-Key";
+        var provided = context.Request.Headers[headerName].FirstOrDefault();
+
+        if (string.IsNullOrWhiteSpace(expected) || string.IsNullOrWhiteSpace(provided))
+        {
+            return false;
+        }
+
+        var expectedBytes = Encoding.UTF8.GetBytes(expected);
+        var providedBytes = Encoding.UTF8.GetBytes(provided);
+        return expectedBytes.Length == providedBytes.Length
+            && CryptographicOperations.FixedTimeEquals(expectedBytes, providedBytes);
     }
 
     private static IResult BadRequest(
