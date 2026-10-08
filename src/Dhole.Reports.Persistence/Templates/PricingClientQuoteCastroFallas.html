@@ -146,6 +146,13 @@
     <div class="terms-card neutral"><p>{{rate.cargoDetails}}</p></div>
     {{/if}}
 
+    {{#if rate.pickupLocations}}
+    <div class="section-title">Puntos de recolecta</div>
+    {{#each rate.pickupLocations}}
+    <div class="terms-card neutral"><strong>{{label}}</strong> {{address}}{{classification}}</div>
+    {{/each}}
+    {{/if}}
+
     <div class="section-title">Equipos cotizados</div>
     <table class="equipment-table">
       <thead><tr><th>Tipo de equipo / embarque</th><th style="width:110px;text-align:right;">Cantidad</th></tr></thead>
