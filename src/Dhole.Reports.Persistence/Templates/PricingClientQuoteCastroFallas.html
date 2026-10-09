@@ -137,7 +137,7 @@
         <td><span class="cargo-label">Bultos</span><span class="cargo-value">{{rate.totalPackages}}</span></td>
         <td><span class="cargo-label">Tarimas</span><span class="cargo-value">{{rate.totalPallets}}</span></td>
         <td><span class="cargo-label">Peso</span><span class="cargo-value">{{rate.totalWeightKg}} KG</span></td>
-        <td><span class="cargo-label">Volumen</span><span class="cargo-value">{{rate.totalVolumeCbm}} M3</span></td>
+        <td><span class="cargo-label">Volumen</span><span class="cargo-value">{{rate.totalVolume}}</span></td>
       </tr>
     </table>
 
@@ -189,11 +189,13 @@
 
     <div class="totals">
       {{#if rate.hasSingleCurrency}}<div class="totals-title">Total de la cotización</div>{{/if}}
-      {{#if rate.hasMultipleCurrencies}}<div class="totals-title">Totales por moneda</div>{{/if}}
+      {{#if rate.hasEquivalentCurrencies}}<div class="totals-title">Total general equivalente en USD y CRC</div>{{/if}}
+      {{#if rate.hasSeparateCurrencyTotals}}<div class="totals-title">Totales sin conversión</div>{{/if}}
       {{#each currencyTotals}}
       <div class="total-card"><span>{{currency}}</span><strong>{{total}}</strong></div>
       {{/each}}
-      {{#if rate.hasMultipleCurrencies}}<div class="multi-note">Los importes de monedas distintas se presentan por separado y no se suman entre sí.</div>{{/if}}
+      {{#if rate.exchangeRateNote}}<div class="multi-note">{{rate.exchangeRateNote}}. Los valores USD y CRC representan el mismo total general.</div>{{/if}}
+      {{#if rate.hasSeparateCurrencyTotals}}<div class="multi-note">No se muestra equivalencia: falta un tipo de cambio válido o hay monedas distintas de USD/CRC.</div>{{/if}}
     </div>
   </section>
 
