@@ -94,7 +94,7 @@
       </tr>
     </table>
 
-    <div class="main-title">Cotización de transporte internacional</div>
+    <div class="main-title">{{rate.documentTitle}}</div>
 
     <table class="accent-strip">
       <tr>
@@ -103,12 +103,14 @@
       </tr>
     </table>
 
+    {{#if rate.hasTransportService}}
     <div class="transit">
       <div>
         <div class="transit-label">Tiempo de tránsito</div>
         <div class="transit-value">{{rate.transitTime}}</div>
       </div>
     </div>
+    {{/if}}
 
     <table class="summary-grid">
       <tr>
@@ -119,6 +121,7 @@
             {{#if rate.pod}}<tr><td class="k">Hasta / POD</td><td class="v">{{rate.pod}}</td></tr>{{/if}}
             {{#if rate.incoterm}}<tr><td class="k">Incoterm</td><td class="v">{{rate.incoterm}}</td></tr>{{/if}}
             <tr><td class="k">Modalidad</td><td class="v">{{rate.shipmentMode}}</td></tr>
+            {{#if rate.hasSelectedServices}}<tr><td class="k">Servicios solicitados</td><td class="v">{{rate.servicesSummary}}</td></tr>{{/if}}
           </table>
         </td>
         <td>
@@ -152,6 +155,14 @@
     {{#each rate.pickupLocations}}
     <div class="terms-card neutral"><strong>{{label}}</strong> {{address}}{{classification}}</div>
     {{/each}}
+    {{/if}}
+
+    {{#if rate.hasStorageService}}
+    <div class="section-title">Servicio de almacenamiento</div>
+    <div class="terms-card neutral">
+      <p><strong>Días de almacenaje fiscal:</strong> {{rate.storageDaysLabel}}</p>
+      <p>Los importes de almacenamiento incluidos son únicamente los conceptos detallados en esta cotización. Días adicionales y otros cargos se cobran solo si están cotizados expresamente.</p>
+    </div>
     {{/if}}
 
     <div class="section-title">Equipos cotizados</div>
@@ -224,10 +235,10 @@
     <div class="notes-box">
       <p>Tarifas sujetas a cambio sin previo aviso. Cotización basada en los datos proporcionados.</p>
       <p>Tarifa aplicable para carga general no peligrosa, salvo indicación expresa en esta cotización.</p>
-      <p>Los tiempos de tránsito son aproximados y están sujetos a conexiones, condiciones externas, revisiones y disponibilidad.</p>
-      <p>Espacios sujetos a disponibilidad al momento de reservar.</p>
-      <p>No incluye demoras, almacenajes, impuestos, permisos ni servicios no indicados expresamente.</p>
-      <p>La carga debe estar correctamente embalada y rotulada para su transporte internacional.</p>
+      {{#if rate.hasTransportService}}<p>Los tiempos de tránsito son aproximados y están sujetos a conexiones, condiciones externas, revisiones y disponibilidad.</p>{{/if}}
+      {{#if rate.hasTransportService}}<p>Espacios sujetos a disponibilidad al momento de reservar.</p>{{/if}}
+      <p>Los servicios, cargos adicionales e impuestos no detallados expresamente en esta cotización no están incluidos.</p>
+      {{#if rate.hasTransportService}}<p>La carga debe estar correctamente embalada y rotulada para su transporte internacional.</p>{{/if}}
       <p>Si la carga contiene producto IMO, debe informarse previamente y adjuntar las fichas MSDS correspondientes.</p>
       <p>Seguro de carga disponible según instrucciones del cliente. Grupo Castro Fallas no asume responsabilidad por carga no asegurada.</p>
     </div>
