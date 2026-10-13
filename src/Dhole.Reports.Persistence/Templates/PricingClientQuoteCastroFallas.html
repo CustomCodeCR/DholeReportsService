@@ -195,8 +195,8 @@
       {{#each currencyTotals}}
       <div class="total-card"><span>{{currency}}</span><strong>{{total}}</strong></div>
       {{/each}}
-      {{#if rate.exchangeRateNote}}<div class="multi-note">{{rate.exchangeRateNote}}. Los valores USD y CRC representan el mismo total general.</div>{{/if}}
-      {{#if rate.hasSeparateCurrencyTotals}}<div class="multi-note">No se muestra equivalencia: falta un tipo de cambio válido o hay monedas distintas de USD/CRC.</div>{{/if}}
+      {{#if rate.hasEquivalentCurrencies}}<div class="multi-note">Los valores USD y CRC representan el mismo total general.</div>{{/if}}
+      {{#if rate.hasSeparateCurrencyTotals}}<div class="multi-note">No se presenta equivalencia entre monedas; los totales se muestran sin conversión.</div>{{/if}}
     </div>
   </section>
 
