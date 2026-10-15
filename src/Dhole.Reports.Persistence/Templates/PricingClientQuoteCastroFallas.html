@@ -8,32 +8,6 @@
     html, body { margin:0; padding:0; }
     body { font-family: Arial, Helvetica, sans-serif; color:#171717; background:#fff; font-size:10.5px; line-height:1.35; }
     .page { width:100%; }
-    /* Compact invoice-style breakdown: IVA only appears if selected on any line. */
-    .page-two { page-break-before: auto; break-before: auto; }
-    .items-table { font-variant-numeric: tabular-nums; }
-    .items-table th, .items-table td { padding:6px 6px; }
-    .items-table .final-amount { font-weight:800; }
-    .items-table--with-tax .concept { width:32%; }
-    .items-table--with-tax .currency { width:9%; }
-    .items-table--with-tax .quantity { width:8%; }
-    .items-table--with-tax .money { width:12.5%; }
-    .items-table--with-tax .money.tax { width:11%; }
-    .items-table--with-tax .money.final-amount { width:14.5%; }
-    .items-table--with-tax th { font-size:7.7px; letter-spacing:0; }
-    .items-table--with-tax td { font-size:9px; }
-    .items-table--with-tax .tax { color:#373737; }
-    .items-table--with-tax th.tax { color:#fff; }
-    .items-table tbody tr { page-break-inside:avoid; break-inside:avoid; }
-    .totals { width:100%; margin-top:10px; text-align:left; page-break-inside:avoid; break-inside:avoid; }
-    .totals-title { font-size:9px; font-weight:800; color:#ad1220; text-transform:uppercase; letter-spacing:.6px; margin-bottom:5px; }
-    .totals-table { width:100%; border-collapse:collapse; table-layout:fixed; font-variant-numeric:tabular-nums; }
-    .totals-table th { font-size:8px; font-weight:800; text-transform:uppercase; color:#555; padding:6px 9px; background:#f2f2f2; border-top:2px solid #ad1220; text-align:right; }
-    .totals-table td { font-size:10.5px; padding:8px 9px; border-bottom:1px solid #dadada; text-align:right; }
-    .totals-table th:first-child, .totals-table td:first-child { text-align:left; width:18%; }
-    .totals-table .currency-name { font-weight:800; color:#333; }
-    .totals-table .final-total { font-weight:900; }
-    .totals-table td.final-total { background:#faf0f1; color:#a80e18; font-size:12px; }
-    .multi-note { margin-top:5px; font-size:8px; color:#666; text-align:right; }
     .header-table { width:100%; border-collapse:collapse; margin-bottom:10px; }
     .header-table td { border:0; padding:0; vertical-align:top; }
     .brand-cell { width:52%; }
@@ -80,6 +54,32 @@
     .total-card span { display:block; color:#777; font-size:8px; text-transform:uppercase; letter-spacing:.4px; margin-bottom:2px; }
     .total-card strong { font-size:15px; color:#111; }
     .multi-note { margin-top:5px; font-size:8.5px; color:#666; text-align:right; }
+    /* Compact invoice-style breakdown: IVA only appears if selected on any line. */
+    .page-two { page-break-before: auto; break-before: auto; }
+    .items-table { font-variant-numeric: tabular-nums; }
+    .items-table th, .items-table td { padding:6px 6px; }
+    .items-table .final-amount { font-weight:800; }
+    .items-table--with-tax .concept { width:32%; }
+    .items-table--with-tax .currency { width:9%; }
+    .items-table--with-tax .quantity { width:8%; }
+    .items-table--with-tax .money { width:12.5%; }
+    .items-table--with-tax .money.tax { width:11%; }
+    .items-table--with-tax .money.final-amount { width:14.5%; }
+    .items-table--with-tax th { font-size:7.7px; letter-spacing:0; }
+    .items-table--with-tax td { font-size:9px; }
+    .items-table--with-tax .tax { color:#373737; }
+    .items-table--with-tax th.tax { color:#fff; }
+    .items-table tbody tr { page-break-inside:avoid; break-inside:avoid; }
+    .totals { width:100%; margin-top:10px; text-align:left; page-break-inside:avoid; break-inside:avoid; }
+    .totals-title { font-size:9px; font-weight:800; color:#ad1220; text-transform:uppercase; letter-spacing:.6px; margin-bottom:5px; }
+    .totals-table { width:100%; border-collapse:collapse; table-layout:fixed; font-variant-numeric:tabular-nums; }
+    .totals-table th { font-size:8px; font-weight:800; text-transform:uppercase; color:#555; padding:6px 9px; background:#f2f2f2; border-top:2px solid #ad1220; text-align:right; }
+    .totals-table td { font-size:10.5px; padding:8px 9px; border-bottom:1px solid #dadada; text-align:right; }
+    .totals-table th:first-child, .totals-table td:first-child { text-align:left; width:18%; }
+    .totals-table .currency-name { font-weight:800; color:#333; }
+    .totals-table .final-total { font-weight:900; }
+    .totals-table td.final-total { background:#faf0f1; color:#a80e18; font-size:12px; }
+    .multi-note { margin-top:5px; font-size:8px; color:#666; text-align:right; }
     .terms-card { border:1px solid #e1e1e1; border-left:5px solid #ad1220; border-radius:5px; padding:9px 11px; margin:8px 0; background:#fbfbfb; page-break-inside:avoid; }
     .terms-card.neutral { border-left-color:#222; }
     .terms-card h3 { margin:0 0 4px; color:#ad1220; font-size:9.5px; text-transform:uppercase; }
