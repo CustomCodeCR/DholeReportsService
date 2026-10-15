@@ -203,6 +203,13 @@
       {{#if rate.hasSingleCurrency}}<div class="totals-title">Total de la cotización</div>{{/if}}
       {{#if rate.hasEquivalentCurrencies}}<div class="totals-title">Total general equivalente en USD y CRC</div>{{/if}}
       {{#if rate.hasSeparateCurrencyTotals}}<div class="totals-title">Totales sin conversión</div>{{/if}}
+      {{#if rate.hasDestinationTax}}
+      <div style="margin:6px 0 10px; border-top:1px solid #ddd; padding-top:7px; font-size:9.5px;">
+        {{#each currencyTotals}}
+        <div style="margin:3px 0; color:#444;"><strong>{{currency}}</strong> · Subtotal: <strong>{{subtotal}}</strong> · IVA: <strong>{{tax}}</strong></div>
+        {{/each}}
+      </div>
+      {{/if}}
       {{#each currencyTotals}}
       <div class="total-card"><span>{{currency}}</span><strong>{{total}}</strong></div>
       {{/each}}
