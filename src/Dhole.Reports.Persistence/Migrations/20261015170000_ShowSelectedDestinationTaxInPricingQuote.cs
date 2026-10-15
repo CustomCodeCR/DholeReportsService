@@ -57,7 +57,7 @@ public sealed class ShowSelectedDestinationTaxInPricingQuote : Migration
                     ),
                     '.items-table .tax-note { display:block; color:#ad1220; font-size:8.2px; font-weight:700; margin-top:2px; }',
                     '.items-table .tax-note { display:block; color:#ad1220; font-size:8.2px; font-weight:700; margin-top:2px; }'
-                        || E'\\n    .items-table .tax-note:empty { display:none; }'
+                        || CHR(10) || '    .items-table .tax-note:empty { display:none; }'
                 ),
                 updated_at_utc = NOW()
             WHERE code IN ('pricing-fcl-client-quote', 'pricing-lcl-client-quote')
