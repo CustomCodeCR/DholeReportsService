@@ -34,7 +34,7 @@ public sealed class PricingQuoteVatInTable : Migration
 
         var invoiceTable = Slice("<table class=\"items-table{{#if", "</table>", includeEnd: true);
         var summaryTable = Slice("<div class=\"totals\">", "</section>").TrimEnd();
-        var styleRules = Slice("/* Compact invoice-style", ".header-table").TrimEnd();
+        var styleRules = Slice("/* Compact invoice-style", ".terms-card").TrimEnd();
 
         if (new[] { invoiceTable, summaryTable, styleRules }
             .Any(fragment => fragment.Contains(SqlDelimiter, StringComparison.Ordinal)))
