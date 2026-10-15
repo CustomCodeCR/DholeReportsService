@@ -8,7 +8,32 @@
     html, body { margin:0; padding:0; }
     body { font-family: Arial, Helvetica, sans-serif; color:#171717; background:#fff; font-size:10.5px; line-height:1.35; }
     .page { width:100%; }
-    .page-two { page-break-before: always; break-before: page; }
+    /* Compact invoice-style breakdown: IVA only appears if selected on any line. */
+    .page-two { page-break-before: auto; break-before: auto; }
+    .items-table { font-variant-numeric: tabular-nums; }
+    .items-table th, .items-table td { padding:6px 6px; }
+    .items-table .final-amount { font-weight:800; }
+    .items-table--with-tax .concept { width:32%; }
+    .items-table--with-tax .currency { width:9%; }
+    .items-table--with-tax .quantity { width:8%; }
+    .items-table--with-tax .money { width:12.5%; }
+    .items-table--with-tax .money.tax { width:11%; }
+    .items-table--with-tax .money.final-amount { width:14.5%; }
+    .items-table--with-tax th { font-size:7.7px; letter-spacing:0; }
+    .items-table--with-tax td { font-size:9px; }
+    .items-table--with-tax .tax { color:#373737; }
+    .items-table--with-tax th.tax { color:#fff; }
+    .items-table tbody tr { page-break-inside:avoid; break-inside:avoid; }
+    .totals { width:100%; margin-top:10px; text-align:left; page-break-inside:avoid; break-inside:avoid; }
+    .totals-title { font-size:9px; font-weight:800; color:#ad1220; text-transform:uppercase; letter-spacing:.6px; margin-bottom:5px; }
+    .totals-table { width:100%; border-collapse:collapse; table-layout:fixed; font-variant-numeric:tabular-nums; }
+    .totals-table th { font-size:8px; font-weight:800; text-transform:uppercase; color:#555; padding:6px 9px; background:#f2f2f2; border-top:2px solid #ad1220; text-align:right; }
+    .totals-table td { font-size:10.5px; padding:8px 9px; border-bottom:1px solid #dadada; text-align:right; }
+    .totals-table th:first-child, .totals-table td:first-child { text-align:left; width:18%; }
+    .totals-table .currency-name { font-weight:800; color:#333; }
+    .totals-table .final-total { font-weight:900; }
+    .totals-table td.final-total { background:#faf0f1; color:#a80e18; font-size:12px; }
+    .multi-note { margin-top:5px; font-size:8px; color:#666; text-align:right; }
     .header-table { width:100%; border-collapse:collapse; margin-bottom:10px; }
     .header-table td { border:0; padding:0; vertical-align:top; }
     .brand-cell { width:52%; }
@@ -177,45 +202,53 @@
     </table>
 
     <div class="section-title">Detalle de la cotización</div>
-    <table class="items-table">
+    <table class="items-table{{#if rate.hasDestinationTax}} items-table--with-tax{{/if}}">
       <thead>
         <tr>
           <th class="concept">Concepto</th>
           <th class="currency">Moneda</th>
-          <th class="quantity">Cantidad</th>
-          <th class="money">Precio unitario</th>
-          <th class="money">Total</th>
+          <th class="quantity">Cant.</th>
+          <th class="money">Precio unit.</th>
+          {{#if rate.hasDestinationTax}}<th class="money">Subtotal</th><th class="money tax">IVA</th>{{/if}}
+          <th class="money final-amount">Total</th>
         </tr>
       </thead>
       <tbody>
         {{#each items}}
         <tr>
-          <td class="concept">{{description}}<span class="tax-note">{{destinationTaxLabel}}</span>{{#if notes}}<span class="notes">{{notes}}</span>{{/if}}</td>
+          <td class="concept">{{description}}{{#if notes}}<span class="notes">{{notes}}</span>{{/if}}</td>
           <td class="currency">{{currency}}</td>
           <td class="quantity">{{quantity}}</td>
           <td class="money">{{unitSaleAmount}}</td>
-          <td class="money"><strong>{{lineTotalAmount}}</strong></td>
+          {{#if rate.hasDestinationTax}}<td class="money">{{lineTotalAmount}}</td><td class="money tax">{{lineTaxAmount}}</td>{{/if}}
+          <td class="money final-amount"><strong>{{lineTotalWithTaxAmount}}</strong></td>
         </tr>
         {{/each}}
       </tbody>
     </table>
 
     <div class="totals">
-      {{#if rate.hasSingleCurrency}}<div class="totals-title">Total de la cotización</div>{{/if}}
-      {{#if rate.hasEquivalentCurrencies}}<div class="totals-title">Total general equivalente en USD y CRC</div>{{/if}}
-      {{#if rate.hasSeparateCurrencyTotals}}<div class="totals-title">Totales sin conversión</div>{{/if}}
-      {{#if rate.hasDestinationTax}}
-      <div style="margin:6px 0 10px; border-top:1px solid #ddd; padding-top:7px; font-size:9.5px;">
-        {{#each currencyTotals}}
-        <div style="margin:3px 0; color:#444;"><strong>{{currency}}</strong> · Subtotal: <strong>{{subtotal}}</strong> · IVA: <strong>{{tax}}</strong></div>
-        {{/each}}
-      </div>
-      {{/if}}
-      {{#each currencyTotals}}
-      <div class="total-card"><span>{{currency}}</span><strong>{{total}}</strong></div>
-      {{/each}}
-      {{#if rate.hasEquivalentCurrencies}}<div class="multi-note">Los valores USD y CRC representan el mismo total general.</div>{{/if}}
-      {{#if rate.hasSeparateCurrencyTotals}}<div class="multi-note">No se presenta equivalencia entre monedas; los totales se muestran sin conversión.</div>{{/if}}
+      <div class="totals-title">Resumen de la cotización</div>
+      <table class="totals-table">
+        <thead>
+          <tr>
+            <th>Moneda</th>
+            {{#if rate.hasDestinationTax}}<th>Subtotal</th><th>IVA</th>{{/if}}
+            <th class="final-total">Total a pagar</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each currencyTotals}}
+          <tr>
+            <td class="currency-name">{{currency}}</td>
+            {{#if rate.hasDestinationTax}}<td>{{subtotalAmount}}</td><td>{{taxAmount}}</td>{{/if}}
+            <td class="final-total"><strong>{{amount}}</strong></td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      {{#if rate.hasEquivalentCurrencies}}<div class="multi-note">USD y CRC son equivalentes del mismo total, no importes adicionales.</div>{{/if}}
+      {{#if rate.hasSeparateCurrencyTotals}}<div class="multi-note">Los totales se muestran por moneda, sin conversión.</div>{{/if}}
     </div>
   </section>
 
