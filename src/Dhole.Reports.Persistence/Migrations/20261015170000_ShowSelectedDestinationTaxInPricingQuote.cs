@@ -42,6 +42,31 @@ public sealed class ShowSelectedDestinationTaxInPricingQuote : Migration
               AND POSITION({SqlDelimiter}{VatMarker}{SqlDelimiter} IN html_content) = 0
               AND POSITION({SqlDelimiter}{Anchor}{SqlDelimiter} IN html_content) > 0;
             """);
+
+        // The original conditional is nested inside {{#each items}}. The binder
+        // evaluates #if against the root data before expanding each item, so the
+        // line-level IVA note never renders. An empty span is suppressed by CSS.
+        migrationBuilder.Sql(
+            """
+            UPDATE reports.report_templates
+            SET html_content = REPLACE(
+                    REPLACE(
+                        html_content,
+                        '<td class="concept">{{description}}{{#if destinationTaxLabel}}<span class="tax-note">{{destinationTaxLabel}}</span>{{/if}}{{#if notes}}<span class="notes">{{notes}}</span>{{/if}}</td>',
+                        '<td class="concept">{{description}}<span class="tax-note">{{destinationTaxLabel}}</span>{{#if notes}}<span class="notes">{{notes}}</span>{{/if}}</td>'
+                    ),
+                    '.items-table .tax-note { display:block; color:#ad1220; font-size:8.2px; font-weight:700; margin-top:2px; }',
+                    '.items-table .tax-note { display:block; color:#ad1220; font-size:8.2px; font-weight:700; margin-top:2px; }'
+                        || E'\\n    .items-table .tax-note:empty { display:none; }'
+                ),
+                updated_at_utc = NOW()
+            WHERE code IN ('pricing-fcl-client-quote', 'pricing-lcl-client-quote')
+              AND NOT is_deleted
+              AND (
+                  POSITION('{{#if destinationTaxLabel}}' IN html_content) > 0
+                  OR POSITION('.items-table .tax-note:empty' IN html_content) = 0
+              );
+            """);
     }
 
     protected override void Down(MigrationBuilder migrationBuilder)
