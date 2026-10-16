@@ -46,6 +46,8 @@
     .items-table .quantity { width:13%; text-align:right; }
     .items-table .money { width:16.5%; text-align:right; white-space:nowrap; }
     .items-table .notes { display:block; color:#777; font-size:8.2px; font-weight:400; margin-top:2px; }
+    .items-table .miami-matrix-note { display:block; white-space:pre-line; line-height:1.45; color:#555; font-size:8px; font-weight:400; margin-top:4px; padding-left:7px; border-left:2px solid #ccc; }
+    .items-table .miami-matrix-note:empty { display:none; }
     .items-table .tax-note { display:block; color:#ad1220; font-size:8.2px; font-weight:700; margin-top:2px; }
     .items-table .tax-note:empty { display:none; }
     .totals { width:100%; margin-top:12px; text-align:right; }
@@ -216,7 +218,7 @@
       <tbody>
         {{#each items}}
         <tr>
-          <td class="concept">{{description}}{{#if notes}}<span class="notes">{{notes}}</span>{{/if}}</td>
+          <td class="concept">{{description}}<span class="miami-matrix-note">{{miamiBreakdown}}</span>{{#if notes}}<span class="notes">{{notes}}</span>{{/if}}</td>
           <td class="currency">{{currency}}</td>
           <td class="quantity">{{quantity}}</td>
           <td class="money">{{unitSaleAmount}}</td>
