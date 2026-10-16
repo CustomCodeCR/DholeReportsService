@@ -18,28 +18,31 @@ public sealed class ShowMiamiFreightCostBreakdownOnPdf : Migration
         // template on disk. Update only the LCL template, leaving commercial
         // branding, QR, conditions, FCL quotes and user-edited HTML untouched.
         // The new span is empty for all other LCL sources, hence invisible.
-        migrationBuilder.Sql(
-            $"""
+        // SQL and Handlebars/CSS both contain literal braces. Keep the SQL as a
+        // non-interpolated raw string so C# does not interpret template markers
+        // such as {{description}} or CSS blocks as interpolation expressions.
+        var sql = """
             UPDATE reports.report_templates
             SET html_content = REPLACE(
                     REPLACE(
                         html_content,
-                        '<td class="concept">{{{{description}}}}',
-                        '<td class="concept">{{{{description}}}}<span class="miami-matrix-note">{{{{miamiBreakdown}}}}</span>'
+                        '<td class="concept">{{description}}',
+                        '<td class="concept">{{description}}<span class="miami-matrix-note">{{miamiBreakdown}}</span>'
                     ),
                     '</style>',
-                    {Tag}
-                    .items-table .miami-matrix-note {{ display:block; white-space:pre-line; line-height:1.45; color:#555; font-size:8px; font-weight:400; margin-top:4px; padding-left:7px; border-left:2px solid #ccc; }}
-                    .items-table .miami-matrix-note:empty {{ display:none; }}
+                    __MIAMI_SQL_TAG__
+                    .items-table .miami-matrix-note { display:block; white-space:pre-line; line-height:1.45; color:#555; font-size:8px; font-weight:400; margin-top:4px; padding-left:7px; border-left:2px solid #ccc; }
+                    .items-table .miami-matrix-note:empty { display:none; }
                     </style>
-                    {Tag}
+                    __MIAMI_SQL_TAG__
                 ),
                 updated_at_utc = NOW()
             WHERE code = 'pricing-lcl-client-quote'
               AND NOT is_deleted
               AND POSITION('miami-matrix-note' IN html_content) = 0
-              AND POSITION('<td class="concept">{{{{description}}}}' IN html_content) > 0;
-            """);
+              AND POSITION('<td class="concept">{{description}}' IN html_content) > 0;
+            """;
+        migrationBuilder.Sql(sql.Replace("__MIAMI_SQL_TAG__", Tag, StringComparison.Ordinal));
     }
 
     protected override void Down(MigrationBuilder migrationBuilder)
