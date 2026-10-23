@@ -19,7 +19,17 @@ internal static class TabularDataReader
             return new TabularData(["Value"], [[ToCell(root)]]);
 
         var objects = array.EnumerateArray().ToList();
-        if (objects.Count == 0) return new TabularData([], []);
+        if (objects.Count == 0)
+        {
+            // A typed report can specify its column headers even when no rows match.
+            if (root.ValueKind == JsonValueKind.Object &&
+                TryGetPropertyIgnoreCase(root, "columns", out var columns) &&
+                columns.ValueKind == JsonValueKind.Array)
+                return new TabularData(columns.EnumerateArray()
+                    .Select(column => column.GetString() ?? string.Empty).ToList(), []);
+
+            return new TabularData([], []);
+        }
 
         if (objects.All(x => x.ValueKind == JsonValueKind.Object))
         {
