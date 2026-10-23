@@ -2,7 +2,10 @@ using System.Text.Json;
 
 namespace Dhole.Reports.Infrastructure.Generation;
 
-internal sealed record TabularData(IReadOnlyList<string> Headers, IReadOnlyList<IReadOnlyList<string>> Rows);
+internal sealed record TabularData(
+    IReadOnlyList<string> Headers,
+    IReadOnlyList<IReadOnlyList<string>> Rows,
+    IReadOnlyList<IReadOnlyList<bool>>? NumericCells = null);
 
 internal static class TabularDataReader
 {
@@ -34,7 +37,15 @@ internal static class TabularDataReader
                     return string.Empty;
                 }).ToList()).ToList();
 
-            return new TabularData(headers, rows);
+            // Preserve JSON numeric types for Excel: money is numeric, but QUO/IDTRA
+            // (including values with leading zeros) remain strings.
+            var numericCells = objects.Select(item =>
+                (IReadOnlyList<bool>)headers.Select(header =>
+                    item.EnumerateObject().Any(property =>
+                        property.Name.Equals(header, StringComparison.OrdinalIgnoreCase) &&
+                        property.Value.ValueKind == JsonValueKind.Number)).ToList()).ToList();
+
+            return new TabularData(headers, rows, numericCells);
         }
 
         return new TabularData(["Value"], objects.Select(x => (IReadOnlyList<string>)[ToCell(x)]).ToList());
