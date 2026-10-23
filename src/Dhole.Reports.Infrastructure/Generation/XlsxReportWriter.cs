@@ -1,5 +1,6 @@
 using System.IO.Compression;
 using System.Text;
+using System.Globalization;
 using System.Xml;
 
 namespace Dhole.Reports.Infrastructure.Generation;
@@ -41,8 +42,11 @@ internal static class XlsxReportWriter
             WriteRow(writer, rowNumber++, table.Headers, isHeader: true);
         }
 
-        foreach (var row in table.Rows)
-            WriteRow(writer, rowNumber++, row, isHeader: false);
+        for (var index = 0; index < table.Rows.Count; index++)
+            WriteRow(writer, rowNumber++, table.Rows[index], isHeader: false,
+                numericCells: table.NumericCells is { } numericRows && index < numericRows.Count
+                    ? numericRows[index]
+                    : null);
 
         writer.WriteEndElement();
         writer.WriteEndElement();
@@ -51,7 +55,7 @@ internal static class XlsxReportWriter
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" + builder;
     }
 
-    private static void WriteRow(XmlWriter writer, int rowNumber, IReadOnlyList<string> cells, bool isHeader)
+    private static void WriteRow(XmlWriter writer, int rowNumber, IReadOnlyList<string> cells, bool isHeader, IReadOnlyList<bool>? numericCells = null)
     {
         writer.WriteStartElement("row");
         writer.WriteAttributeString("r", rowNumber.ToString());
@@ -61,11 +65,22 @@ internal static class XlsxReportWriter
             var value = cells[index] ?? string.Empty;
             writer.WriteStartElement("c");
             writer.WriteAttributeString("r", $"{ColumnName(index + 1)}{rowNumber}");
-            writer.WriteAttributeString("t", "inlineStr");
-            if (isHeader) writer.WriteAttributeString("s", "1");
-            writer.WriteStartElement("is");
-            writer.WriteElementString("t", value);
-            writer.WriteEndElement();
+            var isNumeric = !isHeader && numericCells is not null && index < numericCells.Count &&
+                numericCells[index] && decimal.TryParse(value, NumberStyles.Float,
+                    CultureInfo.InvariantCulture, out _);
+            if (isNumeric)
+            {
+                writer.WriteAttributeString("s", "2");
+                writer.WriteElementString("v", value);
+            }
+            else
+            {
+                writer.WriteAttributeString("t", "inlineStr");
+                if (isHeader) writer.WriteAttributeString("s", "1");
+                writer.WriteStartElement("is");
+                writer.WriteElementString("t", value);
+                writer.WriteEndElement();
+            }
             writer.WriteEndElement();
         }
 
@@ -139,7 +154,7 @@ internal static class XlsxReportWriter
           <fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills>
           <borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>
           <cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
-          <cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs>
+          <cellXfs count="3"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="4" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs>
           <cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>
         </styleSheet>
         """;
