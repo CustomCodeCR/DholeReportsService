@@ -21,6 +21,14 @@
     .accent-strip { width:100%; border-collapse:collapse; margin-bottom:13px; }
     .accent-strip td { background:#ad1220; color:#fff; padding:7px 10px; border:0; font-size:9.5px; }
     .accent-strip td:last-child { text-align:right; }
+    .accent-strip .validity-highlight { display:inline-block; color:#fff; font-size:11.5px; font-weight:900; letter-spacing:.25px; border-bottom:2px solid #fff; padding-bottom:1px; }
+    .kv .validity-detail .k { color:#ad1220; font-weight:800; }
+    .kv .validity-detail .v { color:#a20e1b; font-size:10.5px; font-weight:900; }
+    @media print {
+      .accent-strip td { background:#ad1220 !important; color:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+      .accent-strip .validity-highlight { color:#fff !important; border-bottom:2px solid #fff; font-weight:900; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+      .kv .validity-detail .k, .kv .validity-detail .v { font-weight:900; }
+    }
     .summary-grid { width:100%; border-collapse:collapse; margin:0 0 13px; }
     .summary-grid td { width:50%; vertical-align:top; border-top:1px solid #ddd; padding:8px 8px 6px 0; }
     .summary-grid td + td { padding-left:18px; }
@@ -127,7 +135,7 @@
     <table class="accent-strip">
       <tr>
         <td><strong>Nº DE COTIZACIÓN:</strong> {{rate.quoteNumber}}</td>
-        <td><strong>Vigencia:</strong> {{rate.validFrom}} - {{rate.validTo}}</td>
+        <td><span class="validity-highlight">VIGENCIA: {{rate.validFrom}} AL {{rate.validTo}}</span></td>
       </tr>
     </table>
 
@@ -155,6 +163,7 @@
         <td>
           <table class="kv">
             <tr><td class="k">Cliente</td><td class="v">{{rate.clientName}}</td></tr>
+            <tr class="validity-detail"><td class="k">Vigencia</td><td class="v">{{rate.validFrom}} al {{rate.validTo}}</td></tr>
             {{#if rate.showAgent}}<tr><td class="k">Agente / coloader</td><td class="v">{{rate.agent}}</td></tr>{{/if}}
             {{#if rate.showCarrier}}<tr><td class="k">Naviera / proveedor</td><td class="v">{{rate.carrier}}</td></tr>{{/if}}
             <tr><td class="k">Equipo / embarque</td><td class="v">{{rate.containerSummary}}</td></tr>
