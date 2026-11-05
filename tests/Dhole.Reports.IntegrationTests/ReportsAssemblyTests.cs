@@ -33,9 +33,9 @@ public sealed class ReportsAssemblyTests
         Assert.IsFalse(html.Contains("exchangeRateNote", StringComparison.OrdinalIgnoreCase));
         Assert.IsFalse(html.Contains("tipo de cambio", StringComparison.OrdinalIgnoreCase));
         StringAssert.Contains(html, "{{#if rate.hasEquivalentCurrencies}}");
-        StringAssert.Contains(html, "Los valores USD y CRC representan el mismo total general.");
+        StringAssert.Contains(html, "USD y CRC son equivalentes del mismo total, no importes adicionales.");
         StringAssert.Contains(html, "{{#each currencyTotals}}");
-        StringAssert.Contains(html, "Totales sin conversión");
+        StringAssert.Contains(html, "Los totales se muestran por moneda, sin conversión.");
     }
 
     [TestMethod]
