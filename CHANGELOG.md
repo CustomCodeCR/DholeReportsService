@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0] - 2026-11-06 (en desarrollo)
+
+- Habilita el renderizador interno para un único documento PDF con índice navegable de sub-QUO, ruta, naviera y OF, manteniendo la plantilla HTML original de cada alternativa.
+- Añade pruebas de enlaces, 30 opciones, escaping e integridad del documento; pendiente la integración completa con el grupo persistido de Pricing.
+- Release coordinado DH-20261106-MULTI-QUO-018; no desplegado.
+
+
 ## [1.3.0] - 2026-11-06
 
 - Muestra ruta y comentarios de la naviera, cuando se proporcionan, inmediatamente debajo del tiempo de tránsito en el PDF.
