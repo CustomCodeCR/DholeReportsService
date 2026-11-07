@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.3.0] - 2026-11-06
+
+- Muestra ruta y comentarios de la naviera, cuando se proporcionan, inmediatamente debajo del tiempo de tránsito en el PDF.
+- Migra de forma idempotente las plantillas FCL y LCL activas almacenadas en PostgreSQL.
+- Release DH-20261106-CARRIER-ROUTE-COMMENTS-017, Dhole 1.4.0.
+
 ## [1.2.1] - 2026-11-05
 
 - Consolida SemVer por componente y despliegues automáticos a staging/producción por push.
