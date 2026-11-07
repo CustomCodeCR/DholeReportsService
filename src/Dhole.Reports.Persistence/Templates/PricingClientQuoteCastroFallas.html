@@ -36,7 +36,9 @@
     .kv td { border:0; padding:2px 0; vertical-align:top; }
     .kv .k { width:38%; color:#707070; font-size:8.5px; text-transform:uppercase; letter-spacing:.3px; }
     .kv .v { font-weight:700; color:#222; }
-    .transit { border-top:3px solid #ad1220; border-bottom:1px solid #ddd; padding:9px 0; margin-bottom:12px; display:flex; align-items:center; gap:12px; }
+    .transit { border-top:3px solid #ad1220; border-bottom:1px solid #ddd; padding:9px 0; margin-bottom:12px; display:block; }
+    .transit-extra { margin-top:6px; }
+    .transit-note { font-size:10px; font-weight:600; white-space:pre-wrap; overflow-wrap:anywhere; }
     .transit-label { color:#777; font-size:8.5px; text-transform:uppercase; letter-spacing:.5px; }
     .transit-value { font-size:12px; font-weight:800; margin-top:2px; }
     .cargo-strip { width:100%; border-collapse:separate; border-spacing:0; margin:0 0 12px; border-top:3px solid #ad1220; }
@@ -145,6 +147,18 @@
         <div class="transit-label">Tiempo de tránsito</div>
         <div class="transit-value">{{rate.transitTime}}</div>
       </div>
+        {{#if rate.carrierRoute}}
+        <div class="transit-extra">
+          <div class="transit-label">Ruta de la naviera</div>
+          <div class="transit-note">{{rate.carrierRoute}}</div>
+        </div>
+        {{/if}}
+        {{#if rate.carrierComments}}
+        <div class="transit-extra">
+          <div class="transit-label">Comentarios de la naviera</div>
+          <div class="transit-note">{{rate.carrierComments}}</div>
+        </div>
+        {{/if}}
     </div>
     {{/if}}
 
