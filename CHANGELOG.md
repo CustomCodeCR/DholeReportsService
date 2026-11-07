@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.4.1] - 2026-11-07 (pendiente de CI/staging)
+
+- Evita mostrar directivas de plantilla sin procesar en el PDF e integra el renderizador de cotización agrupada.
+- Release DH-20261107-MULTIQUO-PERSISTED-PDF-026; sin autorización de despliegue a producción.
+
 ## [1.4.0] - 2026-11-06 (en desarrollo)
 
 - Habilita el renderizador interno para un único documento PDF con índice navegable de sub-QUO, ruta, naviera y OF, manteniendo la plantilla HTML original de cada alternativa.
