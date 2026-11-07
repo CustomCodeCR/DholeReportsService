@@ -31,7 +31,9 @@ internal static partial class TemplateDataBinder
             return string.Concat(value.EnumerateArray().Select(item => ReplaceScalars(body, item, root)));
         });
 
-        return ReplaceScalars(withLoops, root, root);
+        // Historical database templates can contain unmatched WYSIWYG blocks.
+        // Never print template control markers in a customer quotation.
+        return ReplaceScalars(UnresolvedBlockTokenRegex().Replace(withLoops, string.Empty), root, root);
     }
 
     private static bool IsTruthy(JsonElement value) => value.ValueKind switch
@@ -119,6 +121,9 @@ internal static partial class TemplateDataBinder
 
     [GeneratedRegex(@"\{\{#each\s+([^}]+)\}\}([\s\S]*?)\{\{/each\}\}", RegexOptions.IgnoreCase)]
     private static partial Regex EachRegex();
+
+    [GeneratedRegex(@"\{\{(?:#(?:if|each)\s+[^}]+|/(?:if|each))\}\}", RegexOptions.IgnoreCase)]
+    private static partial Regex UnresolvedBlockTokenRegex();
 
     [GeneratedRegex(@"\{\{\s*([^#/{][^}]*)\s*\}\}")]
     private static partial Regex ScalarRegex();
