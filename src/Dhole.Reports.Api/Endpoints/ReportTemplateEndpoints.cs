@@ -5,6 +5,10 @@ using CustomCodeFramework.Cqrs.Dispatching;
 using Dhole.Reports.Api.Authorization;
 using Dhole.Reports.Api.Extensions;
 using Dhole.Reports.Application.Templates;
+using Dhole.Reports.Application.Abstractions.Generation;
+using Dhole.Reports.Application.Abstractions.Repositories;
+using Dhole.Reports.Contracts.Generation;
+using Dhole.Reports.Infrastructure.Generation;
 using Dhole.Reports.Contracts.Templates;
 
 namespace Dhole.Reports.Api.Endpoints;
@@ -181,6 +185,54 @@ public static class ReportTemplateEndpoints
                 new GenerateReportByCodeCommand(code, request.Format, request.DataJson, request.FileName, request.SheetName),
                 cancellationToken);
             return ToFileOrError(result, context);
+        })
+        .WithTags("Internal Reports")
+        .AllowAnonymous();
+
+        app.MapPost("/api/internal/reports/quote-groups/generate", async (
+            GenerateGroupedPricingQuoteRequest request,
+            IConfiguration configuration,
+            IReportTemplateRepository templates,
+            IReportDocumentGenerator generator,
+            HttpContext context,
+            CancellationToken cancellationToken) =>
+        {
+            if (!HasValidServiceKey(context, configuration))
+                return Results.Unauthorized();
+
+            if (request.Alternatives is null || request.Alternatives.Count is < 2 or > 100)
+                return Results.BadRequest(new { code = "quote_group_alternatives_invalid" });
+
+            var renderedOptions = new List<GroupedPricingQuoteRenderItem>();
+            foreach (var option in request.Alternatives)
+            {
+                if (option.TemplateCode is not ("pricing-fcl-client-quote" or "pricing-lcl-client-quote"))
+                    return Results.BadRequest(new { code = "quote_group_template_invalid" });
+
+                var template = await templates.GetByCodeAsync(option.TemplateCode, cancellationToken);
+                if (template is null || template.IsDeleted || !template.IsActive)
+                    return Results.Problem("No existe una plantilla comercial activa.", statusCode: 404);
+
+                renderedOptions.Add(new GroupedPricingQuoteRenderItem(
+                    option.QuoteNumber,
+                    option.Route,
+                    option.Carrier,
+                    option.OfAmount,
+                    option.Currency,
+                    template.HtmlContent,
+                    option.DataJson));
+            }
+
+            try
+            {
+                var html = PricingQuoteGroupHtmlBuilder.Build(request.ParentQuoteNumber, renderedOptions);
+                var pdf = await generator.RenderPdfAsync(html, "A4", "Portrait", cancellationToken);
+                return Results.File(pdf, "application/pdf", request.ParentQuoteNumber + ".pdf");
+            }
+            catch (ArgumentException)
+            {
+                return Results.BadRequest(new { code = "quote_group_document_invalid" });
+            }
         })
         .WithTags("Internal Reports")
         .AllowAnonymous();
