@@ -21,6 +21,13 @@ public sealed class QuoteGroupPdfHtmlTests
     {
         var html = PricingQuoteGroupHtmlBuilder.Build(Parent,
             [Option("A", "MSC", "6800"), Option("B", "MAERSK", "6000")]);
+        StringAssert.Contains(html, "Opciones de transporte");
+        StringAssert.Contains(html, "Índice de subcotizaciones");
+        StringAssert.Contains(html, "class=\"quote-group-hero\"");
+        StringAssert.Contains(html, "class=\"quote-group-card\"");
+        StringAssert.Contains(html, "Ocean Freight (OF)");
+        StringAssert.Contains(html, "2 opciones");
+        Assert.AreEqual(2, html.Split("class=\"quote-group-card\"", StringSplitOptions.None).Length - 1);
         StringAssert.Contains(html, "href=\"#quo-option-A\"");
         StringAssert.Contains(html, "href=\"#quo-option-B\"");
         StringAssert.Contains(html, "id=\"quo-option-A\"");

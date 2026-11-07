@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.4.2] - 2026-11-07
+
+- Rediseña el índice PDF con tarjetas por subQUO, rutas, naviera, Ocean Freight y enlaces al detalle; agrega validaciones HTML.
+- Release DH-20261107-MULTIQUO-VALUE-INDEX-027. Merge coordinado a develop y master sujeto a CI y staging.
+
 ## [1.4.1] - 2026-11-07 (pendiente de CI/staging)
 
 - Evita mostrar directivas de plantilla sin procesar en el PDF e integra el renderizador de cotización agrupada.

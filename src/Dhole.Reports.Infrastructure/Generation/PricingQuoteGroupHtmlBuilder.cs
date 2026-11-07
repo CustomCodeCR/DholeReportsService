@@ -68,33 +68,56 @@ public static partial class PricingQuoteGroupHtmlBuilder
         output.Append(firstHead.Groups[1].Value);
         output.Append("""
 <style>
-.quote-group-index { page-break-after:always; break-after:page; font-family:Arial,Helvetica,sans-serif; padding:6mm 2mm; }
-.quote-group-index h1 { color:#ad1220; font-size:23px; margin:10px 0; }
-.quote-group-index .intro { color:#555; font-size:11px; margin-bottom:20px; }
-.quote-group-table { border-collapse:collapse; width:100%; table-layout:fixed; }
-.quote-group-table th { background:#252525; color:#fff; text-align:left; padding:10px 7px; font-size:10px; }
-.quote-group-table td { border-bottom:1px solid #ddd; padding:10px 7px; overflow-wrap:anywhere; font-size:10px; }
-.quote-group-table tr { break-inside:avoid; page-break-inside:avoid; }
-.quote-group-table a { color:#ad1220; font-weight:800; text-decoration:underline; }
+.quote-group-index { page-break-after:always; break-after:page; font-family:Arial,Helvetica,sans-serif; padding:3mm 1mm 5mm; color:#252525; }
+.quote-group-index * { box-sizing:border-box; }
+.quote-group-hero { background:#a80e18; color:#fff; padding:21px 24px 22px; border-radius:12px; }
+.quote-group-hero .eyebrow { font-size:9px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:#ffe5e7; margin:0 0 8px; }
+.quote-group-hero h1 { color:#fff; font-size:25px; line-height:1.2; margin:0 0 7px; font-weight:800; }
+.quote-group-hero .quote-number { color:#fff; font-size:12px; font-weight:700; margin:0; letter-spacing:.5px; }
+.quote-group-hero .intro { color:#fff0f0; font-size:10px; line-height:1.5; margin:10px 0 0; }
+.quote-group-heading { display:flex; justify-content:space-between; align-items:center; margin:18px 0 10px; border-bottom:2px solid #a80e18; padding-bottom:7px; }
+.quote-group-heading strong { font-size:12px; color:#252525; letter-spacing:.8px; text-transform:uppercase; }
+.quote-group-count { border-radius:14px; color:#a80e18; background:#fbecee; font-weight:800; font-size:10px; padding:5px 9px; }
+.quote-group-card { display:block; border:1px solid #e6dedf; border-left:5px solid #a80e18; border-radius:10px; margin-bottom:11px; padding:13px 16px; color:#252525; text-decoration:none; background:#fff; break-inside:avoid; page-break-inside:avoid; }
+.quote-group-card:hover { background:#fff8f8; }
+.quote-group-card-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; }
+.quote-group-card-index { display:inline-block; background:#a80e18; color:#fff; border-radius:7px; padding:5px 8px; font-size:10px; font-weight:800; }
+.quote-group-card-number { font-weight:800; color:#a80e18; font-size:13px; margin-left:8px; }
+.quote-group-card-link { color:#a80e18; font-size:10px; font-weight:700; text-decoration:underline; }
+.quote-group-card-route { color:#2d3032; font-weight:700; font-size:11px; line-height:1.4; margin:0 0 11px; }
+.quote-group-card-meta { display:table; width:100%; padding-top:9px; border-top:1px solid #e9e3e4; }
+.quote-group-card-meta-item { display:table-cell; width:50%; vertical-align:top; }
+.quote-group-card-meta-label { display:block; color:#777; font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.8px; margin-bottom:3px; }
+.quote-group-card-meta-value { display:block; color:#292929; font-size:12px; font-weight:800; overflow-wrap:anywhere; }
+.quote-group-card-of { color:#a80e18; font-size:14px; }
 .quote-group-option + .quote-group-option { break-before:page; page-break-before:always; }
 .quote-group-back { margin-top:15px; font-size:9px; }
-.quote-group-back a { color:#ad1220; }
+.quote-group-back a { color:#a80e18; }
 </style></head><body>
 <section class="quote-group-index" id="quo-index">
 """);
-        output.Append("<h1>Cotización ").Append(Encode(parentQuoteNumber)).Append("</h1>");
-        output.Append("<p class=\"intro\">Opciones comerciales de ruta, naviera y flete oceánico (OF). Seleccione una opción para consultar su cotización completa.</p>");
-        output.Append("<table class=\"quote-group-table\"><thead><tr><th style=\"width:25%\">Sub-QUO</th><th style=\"width:31%\">Ruta</th><th style=\"width:23%\">Naviera</th><th style=\"width:21%\">OF</th></tr></thead><tbody>");
-        foreach (var (item, suffix, _) in prepared)
+        output.Append("<div class=\"quote-group-hero\"><p class=\"eyebrow\">Grupo Castro Fallas · Cotización marítima</p>");
+        output.Append("<h1>Opciones de transporte</h1><p class=\"quote-number\">")
+            .Append(Encode(parentQuoteNumber)).Append("</p>");
+        output.Append("<p class=\"intro\">Compare rutas, navieras y Ocean Freight. Cada alternativa abre su cotización comercial completa dentro de este documento.</p></div>");
+        output.Append("<div class=\"quote-group-heading\"><strong>Índice de subcotizaciones</strong><span class=\"quote-group-count\">")
+            .Append(prepared.Count).Append(" opciones</span></div>");
+        for (var index = 0; index < prepared.Count; index++)
         {
-            output.Append("<tr><td><a href=\"#quo-option-").Append(suffix).Append("\">")
-                .Append(Encode(item.QuoteNumber)).Append("</a></td><td>")
-                .Append(Encode(item.Route)).Append("</td><td>")
-                .Append(Encode(item.Carrier)).Append("</td><td>")
-                .Append(Encode(item.Currency)).Append(' ')
-                .Append(Encode(item.OfAmount)).Append("</td></tr>");
+            var (item, suffix, _) = prepared[index];
+            output.Append("<a class=\"quote-group-card\" href=\"#quo-option-").Append(suffix).Append("\">")
+                .Append("<div class=\"quote-group-card-head\"><div><span class=\"quote-group-card-index\">")
+                .Append((index + 1).ToString("00")).Append("</span><span class=\"quote-group-card-number\">")
+                .Append(Encode(item.QuoteNumber)).Append("</span></div><span class=\"quote-group-card-link\">Ver detalle →</span></div>")
+                .Append("<p class=\"quote-group-card-route\">").Append(Encode(item.Route)).Append("</p>")
+                .Append("<div class=\"quote-group-card-meta\"><div class=\"quote-group-card-meta-item\"><span class=\"quote-group-card-meta-label\">Naviera</span>")
+                .Append("<strong class=\"quote-group-card-meta-value\">").Append(Encode(item.Carrier)).Append("</strong></div>")
+                .Append("<div class=\"quote-group-card-meta-item\"><span class=\"quote-group-card-meta-label\">Ocean Freight (OF)</span>")
+                .Append("<strong class=\"quote-group-card-meta-value quote-group-card-of\">")
+                .Append(Encode(item.Currency)).Append(' ').Append(Encode(item.OfAmount))
+                .Append("</strong></div></div></a>");
         }
-        output.Append("</tbody></table></section>");
+        output.Append("</section>");
 
         foreach (var (_, suffix, body) in prepared)
         {
