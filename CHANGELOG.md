@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.5.3] - 2026-11-08 (F6/F9 staging-audit candidate)
+
+- Sincroniza Dhole Realtime `rt-20261107-01` a versión global `1.13.12` tras incorporar auditoría real de persistencia en staging. PATCH 1.5.2 → 1.5.3; no modifica rutas, eventos, datos, contratos REST ni flags. No se fusiona hasta completar gates formales.
+
+
 ## [1.5.2] - 2026-11-08 (F9 candidato, sin despliegue)
 
 - CI principal de Reports ahora provee PostgreSQL 17 efímero y `REPORTS_F6_POSTGRES`, igual que la suite F6.09 ya validada. Se ejecuta el test transaccional real de plantilla y Outbox sin saltarlo ni modificar datos compartidos.
