@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.5.2] - 2026-11-08 (F9 candidato, sin despliegue)
+
+- CI principal de Reports ahora provee PostgreSQL 17 efímero y `REPORTS_F6_POSTGRES`, igual que la suite F6.09 ya validada. Se ejecuta el test transaccional real de plantilla y Outbox sin saltarlo ni modificar datos compartidos.
+- Versionamiento PATCH 1.5.1 → 1.5.2; `ecosystemVersion=1.13.11` para el siguiente lote de candidato coordinado.
+
+
 ## [1.5.1] - 2026-11-08 (candidato F9, sin publicación)
 
 - Sincroniza metadatos de versión global del batch Dhole Realtime `rt-20261107-01` a `1.13.10`; actualización PATCH independiente de DholeReportsService `1.5.0` → `1.5.1`. No cambia contratos REST, datos, lógica de negocio ni flags; requiere gates F0–F8 y CI de SHA final antes de merge.
