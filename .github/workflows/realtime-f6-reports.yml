@@ -1,0 +1,53 @@
+name: Realtime F6.09 Reports durable Outbox integration (isolated)
+on:
+  push:
+    branches: [feature/dhole-realtime-universal-rt-20261107-01]
+    paths:
+      - 'src/Dhole.Reports.Persistence/**'
+      - 'src/Dhole.Reports.Workers/Realtime/**'
+      - 'src/Dhole.Reports.Workers/Program.cs'
+      - 'tests/Dhole.Reports.IntegrationTests/F6ReportsRealtimeTests.cs'
+      - 'version.json'
+      - 'Directory.Build.targets'
+      - 'CHANGELOG.md'
+      - '.github/workflows/realtime-f6-reports.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  packages: read
+jobs:
+  reports-f6:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: reports_f6_ci
+          POSTGRES_PASSWORD: ci_only_not_for_production
+          POSTGRES_DB: dhole_reports_f6
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U reports_f6_ci -d dhole_reports_f6"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      REPORTS_F6_POSTGRES: Host=127.0.0.1;Port=5432;Database=dhole_reports_f6;Username=reports_f6_ci;Password=ci_only_not_for_production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Validate Reports release SemVer
+        run: python3 scripts/verify_dhole_version.py
+      - name: Authenticate GitHub Packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: dotnet nuget update source github --username github-actions --password "$GITHUB_TOKEN" --store-password-in-clear-text --configfile NuGet.Config
+      - name: Restore Reports integration tests
+        run: dotnet restore tests/Dhole.Reports.IntegrationTests/Dhole.Reports.IntegrationTests.csproj --configfile NuGet.Config
+      - name: Build Reports API and EF migration
+        run: dotnet build tests/Dhole.Reports.IntegrationTests/Dhole.Reports.IntegrationTests.csproj -c Release --no-restore
+      - name: Build Reports worker and durable Outbox publisher
+        run: dotnet build src/Dhole.Reports.Workers/Dhole.Reports.Workers.csproj -c Release
+      - name: Validate Reports template change plus Outbox atomic commit
+        run: dotnet test tests/Dhole.Reports.IntegrationTests/Dhole.Reports.IntegrationTests.csproj -c Release --no-build --filter FullyQualifiedName~F6ReportsRealtimeTests -- RunConfiguration.TreatNoTestsAsError=true
