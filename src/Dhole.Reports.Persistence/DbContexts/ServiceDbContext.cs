@@ -34,7 +34,7 @@ public sealed class ServiceDbContext(DbContextOptions<ServiceDbContext> options,
             return;
         ChangeTracker.DetectChanges();
         foreach (var entry in ChangeTracker.Entries<ReportTemplate>()
-            .Where(x => x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))
+            .Where(x => x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted).ToArray())
         {
             var templateId = entry.Entity.Id;
             if (templateId == Guid.Empty) continue;
