@@ -2,7 +2,8 @@
   "schemaVersion": 1,
   "ecosystem": "Dhole",
   "component": "DholeReportsService",
-  "version": "1.4.2",
-  "ecosystemVersion": "1.11.2",
-  "releaseId": "DH-20261107-MULTIQUO-VALUE-INDEX-027"
+  "version": "1.5.0",
+  "ecosystemVersion": "1.13.0",
+  "releaseId": "rt-20261107-01",
+  "releaseStatus": "candidate-feature-branch-only"
 }
