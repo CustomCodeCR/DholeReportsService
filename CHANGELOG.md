@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.5.0] - 2026-11-08 (candidato F6.09 no publicado)
+
+- F6.09: los cambios de plantillas Reports generan invalidaciones mínimas de recursos en el Outbox transaccional PostgreSQL; migración EF aditiva con unicidad de EventId.
+- Worker con reintentos publica a `dhole.reports.realtime.v1`, separado de generación PDF y flujos de analítica; no transmite HTML, diseños ni PDF. REST sigue autoritativo.
+- Pruebas de seguridad y persistencia sobre PostgreSQL real, flags OFF por defecto. Componente 1.4.2 → 1.5.0, global candidato 1.13.0; sin deploy.
+
 ## [1.4.2] - 2026-11-07
 
 - Rediseña el índice PDF con tarjetas por subQUO, rutas, naviera, Ocean Freight y enlaces al detalle; agrega validaciones HTML.
