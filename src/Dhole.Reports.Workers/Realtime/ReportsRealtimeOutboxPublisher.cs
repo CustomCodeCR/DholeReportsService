@@ -6,7 +6,7 @@ using Dhole.Reports.Persistence.DbContexts;
 using Dhole.Reports.Persistence.Messaging;
 using Microsoft.EntityFrameworkCore;
 
-namespace Dhole.Reports.Worker.Realtime;
+namespace Dhole.Reports.Workers.Realtime;
 
 /// <summary>
 /// F6.06: publishes only committed Reports Outbox messages. Redis failures never
