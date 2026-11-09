@@ -11,6 +11,21 @@ permissions:
 jobs:
   build-and-test:
     runs-on: ubuntu-24.04
+    # Reports integration tests use a real PostgreSQL Outbox transaction.
+    # Match the successful F6 isolated workflow instead of skipping that test.
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: reports_f6_ci
+          POSTGRES_PASSWORD: ci_only_not_for_production
+          POSTGRES_DB: dhole_reports_f6
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U reports_f6_ci -d dhole_reports_f6"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      REPORTS_F6_POSTGRES: Host=127.0.0.1;Port=5432;Database=dhole_reports_f6;Username=reports_f6_ci;Password=ci_only_not_for_production
     steps:
       - name: Checkout
         uses: actions/checkout@v4
