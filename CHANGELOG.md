@@ -1,3 +1,8 @@
+## [1.7.0] - 2026-11-14 (API Manager discovery)
+
+- MINOR: rutas de Reports listadas mediante catálogo interno protegido por scope de integraciones.
+- Global Dhole 1.56.0, sin alterar generación de PDF/Excel ni permisos.
+
 # Changelog
 
 ## [1.6.0] - 2026-11-09 (NotificationsHub universal realtime pilot; candidate)
