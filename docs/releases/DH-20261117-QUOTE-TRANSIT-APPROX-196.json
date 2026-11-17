@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "ecosystem": "Dhole",
+  "releaseId": "DH-20261117-QUOTE-TRANSIT-APPROX-196",
+  "ecosystemVersion": "1.70.6",
+  "releaseType": "PATCH",
+  "createdAt": "2026-11-17",
+  "scope": "Commercial quote PDF approximate transit heading and displayed days; all FCL/LCL individual and grouped quote documents",
+  "components": [
+    {
+      "repository": "CustomCodeCR/DholeReportsService",
+      "component": "DholeReportsService",
+      "from": "1.8.0",
+      "to": "1.8.1"
+    },
+    {
+      "repository": "CustomCodeCR/DholeSystem",
+      "component": "DholeSystem",
+      "from": "1.70.5",
+      "to": "1.70.6"
+    }
+  ],
+  "validation": {
+    "build": "pending",
+    "tests": "pending",
+    "versionGate": "pending",
+    "staging": "pending",
+    "productionDeploy": "not-authorized"
+  },
+  "productionDeploymentAuthorized": false,
+  "rollback": "Revert Reports release and restore the label in database templates after client-customization review"
+}

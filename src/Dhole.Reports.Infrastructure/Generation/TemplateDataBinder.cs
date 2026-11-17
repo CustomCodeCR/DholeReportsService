@@ -62,7 +62,10 @@ internal static partial class TemplateDataBinder
                 return string.Empty;
             }
 
-            return WebUtility.HtmlEncode(ToDisplayString(value));
+            var display = ToDisplayString(value);
+            if (path.Equals("rate.transitTime", StringComparison.OrdinalIgnoreCase))
+                display = FormatApproximateTransitTime(display);
+            return WebUtility.HtmlEncode(display);
         });
     }
 
@@ -93,6 +96,25 @@ internal static partial class TemplateDataBinder
         }
         value = default;
         return false;
+    }
+
+    // Applies to all quote PDFs (individual and grouped) without changing the
+    // persisted transit days or other consumers of the source payload.
+    private static string FormatApproximateTransitTime(string value)
+    {
+        var text = value.Trim();
+        if (string.IsNullOrEmpty(text)
+            || text.Equals("Por confirmar", StringComparison.OrdinalIgnoreCase)
+            || text.Equals("No aplica", StringComparison.OrdinalIgnoreCase)
+            || text.Equals("N/A", StringComparison.OrdinalIgnoreCase)
+            || text.StartsWith("Pendiente", StringComparison.OrdinalIgnoreCase)
+            || text.Contains("aprox", StringComparison.OrdinalIgnoreCase))
+            return text;
+
+        if (Regex.IsMatch(text, @"^\\d+(?:[.,]\\d+)?$", RegexOptions.CultureInvariant))
+            text += " días";
+
+        return text + " aprox.";
     }
 
     private static string ToDisplayString(JsonElement value) => value.ValueKind switch
