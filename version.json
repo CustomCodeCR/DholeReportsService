@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "ecosystem": "Dhole",
   "component": "DholeReportsService",
-  "version": "1.8.0",
-  "ecosystemVersion": "1.63.0",
-  "releaseId": "DH-20261116-API-ROUTES-DEFAULTS-165",
+  "version": "1.8.1",
+  "ecosystemVersion": "1.70.6",
+  "releaseId": "DH-20261117-QUOTE-TRANSIT-APPROX-196",
   "releaseStatus": "candidate-ci-and-staging-pending",
-  "businessReleaseId": "DH-20261116-API-ROUTES-DEFAULTS-165"
+  "businessReleaseId": "DH-20261117-QUOTE-TRANSIT-APPROX-196"
 }

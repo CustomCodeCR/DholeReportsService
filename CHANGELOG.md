@@ -1,3 +1,9 @@
+## [1.8.1] - 2026-11-17 (PDF: tiempo aproximado de tránsito)
+
+- PATCH DH-20261117-QUOTE-TRANSIT-APPROX-196: los PDF de cotizaciones FCL/LCL individuales y MultiQUO indican «Tiempo aproximado de tránsito» y «38 días aprox.»; no cambian los días persistidos ni la lógica comercial.
+- Migración idempotente de las plantillas almacenadas en PostgreSQL, manteniendo la personalización existente. «Por confirmar» permanece sin «aprox.» y se impiden sufijos duplicados.
+- DholeReportsService 1.8.0 → 1.8.1; ecosistema 1.70.5 → 1.70.6. Integración en develop y master sujeta a CI/staging; sin autorización de despliegue a producción.
+
 ## [1.8.0] - 2026-11-16 (Inventario protegido para API Manager)
 
 - MINOR DH-20261116-API-ROUTES-DEFAULTS-165: expone catálogo runtime de rutas por JWT con integrations.thirdparty.manage; no publica ni habilita operaciones externas.
