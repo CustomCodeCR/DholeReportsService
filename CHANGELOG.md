@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.8.1] - 2026-11-17 (PDF: tiempo aproximado de tránsito)
+
+- PATCH DH-20261117-QUOTE-TRANSIT-APPROX-196: backport de la corrección de Reports desde develop a master, sin incorporar otras funcionalidades no promovidas de develop.
+- Los PDF FCL/LCL, individuales y MultiQUO, indican «Tiempo aproximado de tránsito» y «38 días aprox.»; se conserva «Por confirmar» y los días en el modelo de datos.
+- Migra las plantillas PostgreSQL de forma idempotente, con pruebas de regresión. Versión alineada con develop (1.8.1) y ecosistema 1.70.6; master previo 1.4.2.
+- CI/staging obligatorios y despliegue a producción no autorizado.
+
+
 ## [1.4.2] - 2026-11-07
 
 - Rediseña el índice PDF con tarjetas por subQUO, rutas, naviera, Ocean Freight y enlaces al detalle; agrega validaciones HTML.
