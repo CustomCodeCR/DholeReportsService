@@ -39,6 +39,6 @@ public sealed class QuoteApproximateTransitTests
 
         var data = JsonSerializer.Serialize(new { rate = new { transitTime = value } });
         var rendered = method.Invoke(null, ["<div>{{rate.transitTime}}</div>", data]) as string;
-        Assert.AreEqual("<div>" + expected + "</div>", rendered);
+        Assert.AreEqual("<div>" + expected + "</div>", System.Net.WebUtility.HtmlDecode(rendered));
     }
 }
