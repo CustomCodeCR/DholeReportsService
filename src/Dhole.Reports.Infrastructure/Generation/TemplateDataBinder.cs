@@ -111,7 +111,7 @@ internal static partial class TemplateDataBinder
             || text.Contains("aprox", StringComparison.OrdinalIgnoreCase))
             return text;
 
-        if (Regex.IsMatch(text, @"^\\d+(?:[.,]\\d+)?$", RegexOptions.CultureInvariant))
+        if (Regex.IsMatch(text, @"^\d+(?:[.,]\d+)?$", RegexOptions.CultureInvariant))
             text += " días";
 
         return text + " aprox.";
